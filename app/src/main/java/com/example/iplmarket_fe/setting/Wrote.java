@@ -23,7 +23,7 @@ import java.util.List;
 
 public class Wrote extends AppCompatActivity {
 
-    private List<Product> productList;
+    private List<ProductItem> productList;
     private RecyclerView recyclerView;
     private ProductAdapter productAdapter;
 
@@ -38,28 +38,28 @@ public class Wrote extends AppCompatActivity {
         productAdapter = new ProductAdapter(productList);
         recyclerView.setAdapter(productAdapter);
 
-        // 예시
-        productList.add(new Product(R.drawable.product1, "상품 1", "10,000₩", false));
-        productList.add(new Product(R.drawable.product2, "상품 2", "20,000₩", false));
-        productList.add(new Product(R.drawable.product3, "상품 3", "30,000₩", false));
-        productList.add(new Product(R.drawable.product4, "상품 4", "40,000₩", false));
-        productList.add(new Product(R.drawable.product5, "상품 5", "50,000₩", false));
-        productList.add(new Product(R.drawable.product6, "상품 6", "60,000₩", false));
-        productList.add(new Product(R.drawable.product7, "상품 7", "70,000₩", false));
-        productList.add(new Product(R.drawable.product8, "상품 8", "80,000₩", false));
-        productList.add(new Product(R.drawable.product9, "상품 9", "90,000₩", false));
-        productList.add(new Product(R.drawable.product10, "상품 10", "100,000₩", false));
+        // 예시 데이터 추가
+        productList.add(new ProductItem(R.drawable.product1, "상품 1", "10,000₩", false));
+        productList.add(new ProductItem(R.drawable.product2, "상품 2", "20,000₩", false));
+        productList.add(new ProductItem(R.drawable.product3, "상품 3", "30,000₩", false));
+        productList.add(new ProductItem(R.drawable.product4, "상품 4", "40,000₩", false));
+        productList.add(new ProductItem(R.drawable.product5, "상품 5", "50,000₩", false));
+        productList.add(new ProductItem(R.drawable.product6, "상품 6", "60,000₩", false));
+        productList.add(new ProductItem(R.drawable.product7, "상품 7", "70,000₩", false));
+        productList.add(new ProductItem(R.drawable.product8, "상품 8", "80,000₩", false));
+        productList.add(new ProductItem(R.drawable.product9, "상품 9", "90,000₩", false));
+        productList.add(new ProductItem(R.drawable.product10, "상품 10", "100,000₩", false));
 
         productAdapter.notifyDataSetChanged();
     }
 
-    private class Product {
+    private class ProductItem {
         private int imageResource;
         private String name;
         private String price;
         private boolean wrote;
 
-        public Product(int imageResource, String name, String price, boolean wrote) {
+        public ProductItem(int imageResource, String name, String price, boolean wrote) {
             this.imageResource = imageResource;
             this.name = name;
             this.price = price;
@@ -88,9 +88,9 @@ public class Wrote extends AppCompatActivity {
     }
 
     private class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder> {
-        private List<Product> productList;
+        private List<ProductItem> productList;
 
-        public ProductAdapter(List<Product> productList) {
+        public ProductAdapter(List<ProductItem> productList) {
             this.productList = productList;
         }
 
@@ -103,7 +103,7 @@ public class Wrote extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
-            final Product product = productList.get(position);
+            final ProductItem product = productList.get(position);
 
             holder.productImage.setImageResource(product.getImageResource());
             holder.productName.setText(product.getName());
@@ -112,16 +112,16 @@ public class Wrote extends AppCompatActivity {
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // Navigate to ProductPage
+                    // 상품 페이지로 이동
                     Intent intent = new Intent(Wrote.this, Detail.class);
                     startActivity(intent);
                 }
             });
 
-            holder.wrote.setOnClickListener(new View.OnClickListener() {
+            holder.wroteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // Navigate to MainActivity
+                    // 메인 화면으로 이동
                     Intent intent = new Intent(Wrote.this, MainActivity.class);
                     startActivity(intent);
                 }
@@ -137,14 +137,14 @@ public class Wrote extends AppCompatActivity {
             private ImageView productImage;
             private TextView productName;
             private TextView productPrice;
-            private ImageButton wrote;
+            private ImageButton wroteButton;
 
             public ProductViewHolder(@NonNull View itemView) {
                 super(itemView);
                 productImage = itemView.findViewById(R.id.productimage1);
                 productName = itemView.findViewById(R.id.productName);
                 productPrice = itemView.findViewById(R.id.productPrice);
-                wrote = itemView.findViewById(R.id.productwrote);
+                wroteButton = itemView.findViewById(R.id.productwrote);
             }
         }
     }

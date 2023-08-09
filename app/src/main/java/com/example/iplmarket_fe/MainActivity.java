@@ -12,8 +12,7 @@ import com.example.iplmarket_fe.setting.SettingFrag;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
-    private FragmentManager fm;
-    private FragmentTransaction ft;
+    private FragmentManager fragmentManager;
     private CreateFrag createfrag;
     private HomeFrag homefrag;
     private SettingFrag settingfrag;
@@ -23,18 +22,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        fm = getSupportFragmentManager();
+        fragmentManager = getSupportFragmentManager();
 
-        // 바텀 네비게이션 뷰
+        // 하단 네비게이션 뷰 설정
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavi);
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.action_create) {
-                setFrag(0);
+                switchToFragment(0);
             } else if (itemId == R.id.action_home) {
-                setFrag(1);
+                switchToFragment(1);
             } else if (itemId == R.id.action_settings) {
-                setFrag(2);
+                switchToFragment(2);
             }
             return true;
         });
@@ -42,24 +41,24 @@ public class MainActivity extends AppCompatActivity {
         createfrag = new CreateFrag();
         homefrag = new HomeFrag();
         settingfrag = new SettingFrag();
-        setFrag(0); // 첫 프래그먼트 화면 지정
+        switchToFragment(0); // 첫 프래그먼트 화면 지정
     }
 
-    // 프래그먼트 교체가 일어나는 실행문
-    private void setFrag(int n) {
-        ft = fm.beginTransaction();
+    // 프래그먼트 전환 메소드
+    private void switchToFragment(int n) {
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         switch (n) {
             case 0:
-                ft.replace(R.id.main_frame, createfrag);
-                ft.commit();
+                fragmentTransaction.replace(R.id.main_frame, createfrag);
+                fragmentTransaction.commit();
                 break;
             case 1:
-                ft.replace(R.id.main_frame, homefrag);
-                ft.commit();
+                fragmentTransaction.replace(R.id.main_frame, homefrag);
+                fragmentTransaction.commit();
                 break;
             case 2:
-                ft.replace(R.id.main_frame, settingfrag);
-                ft.commit();
+                fragmentTransaction.replace(R.id.main_frame, settingfrag);
+                fragmentTransaction.commit();
                 break;
         }
     }
