@@ -47,7 +47,7 @@ public class PageMain extends AppCompatActivity {
             productAdapter = new ProductAdapter(productList);
             recyclerView.setAdapter(productAdapter);
 
-            // 예시
+            // 예시 데이터 추가
             productList.add(new Product(R.drawable.product1, "상품 1", "10,000₩", false));
             productList.add(new Product(R.drawable.product2, "상품 2", "20,000₩", false));
             productList.add(new Product(R.drawable.product3, "상품 3", "30,000₩", false));
