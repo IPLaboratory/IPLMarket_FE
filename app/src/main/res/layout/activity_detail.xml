@@ -74,7 +74,7 @@
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
                 android:layout_marginStart="20dp"
-                android:layout_marginEnd="20dp">
+                android:layout_marginEnd="20dp" >
 
                 <TextView
                     android:id="@+id/detail_price"
@@ -97,7 +97,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
-                android:layout_margin="20dp">
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="20dp" >
 
                 <TextView
                     android:id="@+id/detail_nick"
@@ -112,6 +114,29 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:hint="닉네임"
+                    android:textSize="20sp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_margin="20dp">
+
+                <TextView
+                    android:id="@+id/detail_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="등록 날짜 : "
+                    android:textSize="20sp"/>
+
+                <TextView
+                    android:id="@+id/detail_et_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="등록 날짜"
                     android:textSize="20sp"/>
 
             </LinearLayout>

@@ -18,7 +18,7 @@ import com.example.iplmarket_fe.R;
 public class Detail extends AppCompatActivity {
 
     private ImageView detail_imageView;
-    private TextView detail_et_name, detail_et_price, detail_et_ex;
+    private TextView detail_et_name, detail_et_price, detail_et_ex, detail_et_date;
     private Button detail_btn_vr, detail_btn_buy;
     private ImageButton detail_btn_image;
     boolean i = true;
