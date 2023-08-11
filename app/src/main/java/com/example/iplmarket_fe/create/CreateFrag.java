@@ -32,6 +32,8 @@ import androidx.fragment.app.Fragment;
 
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class CreateFrag extends Fragment {
 
@@ -46,7 +48,7 @@ public class CreateFrag extends Fragment {
     Uri uri;
 
     private EditText create_name, create_price, create_ex;
-    private TextView len_name, len_price, len_ex;
+    private TextView len_name, len_price, len_ex, create_date;
 
     @Nullable
     @Override
@@ -148,12 +150,17 @@ public class CreateFrag extends Fragment {
             }
         });
 
+        // 등록 날짜 설정
+        create_date = fragmentView.findViewById(R.id.create_date);
+        setCurrentDate();
+
         /*
         서버 연결
         등록 버튼 클릭 시 정보 저장
         et_name = view.findViewById(R.id.et_name);
         et_price = view.findViewById(R.id.et_price);
         et_ex = view.findViewById(R.id.et_ex);
+        create_date = view.findViewById(R.id.create_date);
 
         btn_enroll.setOnClickListener(view -> {
             // EditText에 현재 입력되어있는 값을 가져옴
@@ -215,4 +222,12 @@ public class CreateFrag extends Fragment {
             create_imageView2.setImageBitmap(photo);
         }
     }
+
+    // 현재 날짜를 설정하는 도우미 메서드
+    private void setCurrentDate() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String currentDate = sdf.format(new Date());
+        create_date.setText(currentDate);
+    }
+
 }
