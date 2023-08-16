@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -27,7 +26,6 @@ public class Register extends AppCompatActivity {
     private TextView len_id, len_pw, len_nick;
     private Button reg_btn;
 
-    private ProgressBar mProgressView;
     private ProgressBar progressBar;
 
     private ServiceApi service;
@@ -54,6 +52,8 @@ public class Register extends AppCompatActivity {
                 .build();
 
         service = retrofit.create(ServiceApi.class);
+
+        progressBar = findViewById(R.id.progressBar);
 
         //EditText 글자 수 제한
         reg_id.addTextChangedListener(new TextWatcher() {
@@ -112,43 +112,62 @@ public class Register extends AppCompatActivity {
             String userNickname = reg_nick.getText().toString();
             int userNumber = Integer.parseInt(reg_number.getText().toString());
 
-            // 입력된 정보를 DB에 저장
+            // 아이디 중복 검사 수행
+            performIdCheck();
 
+            // 회원가입 데이터 생성
+            RegisterData registerData = new RegisterData(userID, userPW, userName, userNickname, userNumber);
+
+            // 회원가입 수행
+            회원가입수행(registerData);
+
+            // 로그인 화면으로 이동
             Intent intent = new Intent(Register.this, Login.class);
             startActivity(intent);
         });
+
+
     }
-    private void startJoin(RegisterData data) {
+    private void performIdCheck() {
+        String userID = reg_id.getText().toString();
+        String userPW = reg_pw.getText().toString();
+        String userName = reg_name.getText().toString();
+        String userNickname = reg_nick.getText().toString();
+        String userNumber = reg_number.getText().toString();
+        String id = reg_id.getText().toString();
+
         // 아이디 중복 검사 수행
-        service.checkDuplicateId(data.getId()).enqueue(new Callback<IdCheckResponse>() {
+        service.checkDuplicateId(id).enqueue(new Callback<IdCheckResponse>() {
             @Override
             public void onResponse(Call<IdCheckResponse> call, Response<IdCheckResponse> response) {
                 if (response.isSuccessful()) {
                     IdCheckResponse result = response.body();
                     if (result != null) {
                         if (result.isSuccess()) {
-                            // 유효한 아이디, 회원가입 진행
-                            회원가입수행(data);
+                            // 사용 가능한 아이디입니다.
+                            Toast.makeText(Register.this, "사용 가능한 아이디", Toast.LENGTH_SHORT).show();
                         } else {
-                            // 중복 아이디, 에러 메시지 표시
-                            Toast.makeText(Register.this, result.getMessage(), Toast.LENGTH_SHORT).show();
+                            // 아이디 중복인 경우
+                            Toast.makeText(Register.this, "이미 사용 중인 아이디입니다.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 } else {
-                    // 서버 오류 처리
                     Toast.makeText(Register.this, "서버 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
                 }
-                showProgress(false);
+                // 중복 검사 결과에 상관없이 UI 상태를 원래대로 복구
+                // showProgress(false);
             }
 
             @Override
             public void onFailure(Call<IdCheckResponse> call, Throwable t) {
                 Toast.makeText(Register.this, "아이디 중복 확인 에러", Toast.LENGTH_SHORT).show();
                 Log.e("아이디 중복 확인 에러", t.getMessage());
-                showProgress(false);
+                // showProgress(false);
             }
         });
     }
+
+
 
     private void 회원가입수행(RegisterData data) {
         service.userRegister(data).enqueue(new Callback<RegisterResponse>() {
