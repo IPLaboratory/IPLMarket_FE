@@ -18,7 +18,7 @@ public class Register extends AppCompatActivity {
 
     private EditText reg_id, reg_pw, reg_name, reg_nick, reg_number;
     private TextView len_id, len_pw, len_nick;
-    private Button reg_btn;
+    private Button reg_idCheck, reg_btn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,9 +131,23 @@ public class Register extends AppCompatActivity {
             }
         });
 
+        /*
+         아이디 중복 검사 버튼 클릭 시 수행
+        reg_idCheck = findViewById(R.id.reg_idCheck);
+        reg_idCheck.setOnClickListener(view -> {
+            // 아이디 중복일 경우
+            Toast.makeText(this.getApplicationContext(),"다른 아이디를 입력하여 주세요.", Toast.LENGTH_SHORT).show();
+            // 아이디 중복이 아닐 경우
+            Toast.makeText(this.getApplicationContext(),"사용할 수 있는 아이디입니다.", Toast.LENGTH_SHORT).show();
+        });
+         */
 
         // 회원가입 버튼 클릭 시 수행
         reg_btn = findViewById(R.id.reg_btn);
+
+        // 아이디 중복검사가 안되어있을 경우
+        // Toast.makeText(this.getApplicationContext(),"아이디 중복검사를 해주세요.", Toast.LENGTH_SHORT).show();
+
         reg_btn.setOnClickListener(view -> {
             // EditText에 현재 입력되어있는 값을 가져옴
             String userID = reg_id.getText().toString();
@@ -142,11 +156,10 @@ public class Register extends AppCompatActivity {
             String userNickname = reg_nick.getText().toString();
             int userNumber = Integer.parseInt(reg_number.getText().toString());
 
-           // 입력된 정보를 DB에 저장
+            // 입력된 정보를 DB에 저장
 
             Intent intent = new Intent(Register.this, Login.class);
             startActivity(intent);
         });
     }
 }
-

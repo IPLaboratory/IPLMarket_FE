@@ -225,8 +225,8 @@ public class CreateFrag extends Fragment {
 
     // 현재 날짜를 설정하는 도우미 메서드
     private void setCurrentDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String currentDate = sdf.format(new Date());
+        SimpleDateFormat simpleDataFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String currentDate = simpleDataFormat.format(new Date());
         create_date.setText(currentDate);
     }
 

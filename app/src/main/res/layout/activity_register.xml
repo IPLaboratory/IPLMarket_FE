@@ -21,8 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="70dp"
-        android:layout_marginEnd="70dp"
-        android:layout_marginBottom="10dp">
+        android:layout_marginEnd="70dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/reg_id"
@@ -36,9 +35,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="0/10"
-            android:layout_gravity="right"/>
+            android:layout_gravity="right" />
 
     </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/reg_idCheck"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="아이디 중복 검사"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"/>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/reg_btn_show"
