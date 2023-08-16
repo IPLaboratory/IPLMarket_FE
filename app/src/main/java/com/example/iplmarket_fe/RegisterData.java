@@ -12,7 +12,7 @@ public class RegisterData {
     @SerializedName("id")
     private String id;
 
-    public RegisterData(String userName, String userPwd) {
+    public RegisterData(String userName, String userPwd, String name, String userNickname, int userNumber) {
         this.userName = userName;
         this.userPwd = userPwd;
     }
