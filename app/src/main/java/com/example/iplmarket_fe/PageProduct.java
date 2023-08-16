@@ -1,4 +1,4 @@
-package com.example.iplmarket_fe.home;
+package com.example.iplmarket_fe;
 
 public class PageProduct {
     private boolean liked;

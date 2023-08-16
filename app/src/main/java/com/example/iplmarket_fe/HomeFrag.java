@@ -1,4 +1,4 @@
-package com.example.iplmarket_fe.home;
+package com.example.iplmarket_fe;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -11,12 +11,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
-import com.example.iplmarket_fe.R;
-import com.example.iplmarket_fe.home.OnProductItemClickListener;
-import com.example.iplmarket_fe.home.Product;
-import com.example.iplmarket_fe.home.ProductAdapter;
-import com.example.iplmarket_fe.home.Detail;
 
 public class HomeFrag extends Fragment {
 

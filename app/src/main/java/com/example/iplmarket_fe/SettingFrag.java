@@ -1,4 +1,4 @@
-package com.example.iplmarket_fe.setting;
+package com.example.iplmarket_fe;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -12,8 +12,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
-import com.example.iplmarket_fe.R;
 
 public class SettingFrag extends Fragment {
     private Button set_btn_logout;

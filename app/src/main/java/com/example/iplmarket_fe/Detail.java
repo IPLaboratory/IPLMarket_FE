@@ -1,4 +1,4 @@
-package com.example.iplmarket_fe.home;
+package com.example.iplmarket_fe;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,8 +12,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-
-import com.example.iplmarket_fe.R;
 
 public class Detail extends AppCompatActivity {
 

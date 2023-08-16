@@ -1,4 +1,4 @@
-package com.example.iplmarket_fe.home;
+package com.example.iplmarket_fe;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,8 +8,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.iplmarket_fe.R;
 
 import java.util.ArrayList;
 

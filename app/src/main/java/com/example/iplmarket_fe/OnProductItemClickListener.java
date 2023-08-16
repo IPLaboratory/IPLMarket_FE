@@ -1,4 +1,4 @@
-package com.example.iplmarket_fe.home;
+package com.example.iplmarket_fe;
 
 import android.view.View;
 

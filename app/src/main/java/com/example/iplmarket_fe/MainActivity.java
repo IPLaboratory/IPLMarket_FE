@@ -6,9 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.iplmarket_fe.create.CreateFrag;
-import com.example.iplmarket_fe.home.HomeFrag;
-import com.example.iplmarket_fe.setting.SettingFrag;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {

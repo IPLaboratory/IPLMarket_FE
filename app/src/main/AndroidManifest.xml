@@ -24,49 +24,49 @@
         android:theme="@style/Theme.IPLMarket_FE"
         tools:targetApi="31">
         <activity
-            android:name=".home.Product"
+            android:name=".Product"
             android:exported="false"/>
         <activity
-            android:name=".home.ProductAdapter"
+            android:name=".ProductAdapter"
             android:exported="false"/>
         <activity
-            android:name=".home.PageProduct"
+            android:name=".PageProduct"
             android:exported="false"/>
         <activity
-            android:name=".setting.Wrote"
+            android:name=".Wrote"
             android:exported="false"/>
         <activity
-            android:name=".setting.Wishlist"
+            android:name=".Wishlist"
             android:exported="false"/>
         <activity
-            android:name=".setting.Question"
+            android:name=".Question"
             android:exported="false"/>
         <activity
-            android:name=".setting.PageMain"
+            android:name=".PageMain"
             android:exported="false"/>
         <activity
-            android:name=".home.Detail"
+            android:name=".Detail"
             android:exported="false"/>
         <activity
-            android:name=".home.Chatting"
+            android:name=".Chatting"
             android:exported="false"/>
         <activity
             android:name=".MainActivity"
             android:exported="false"/>
         <activity
-            android:name=".setting.Register"
+            android:name=".Register"
             android:exported="false"/>
         <activity
-            android:name=".setting.SettingFrag"
+            android:name=".SettingFrag"
             android:exported="false"/>
         <activity
-            android:name=".home.HomeFrag"
+            android:name=".HomeFrag"
             android:exported="false"/>
         <activity
-            android:name=".create.CreateFrag"
+            android:name=".CreateFrag"
             android:exported="false"/>
         <activity
-            android:name=".setting.Login"
+            android:name=".Login"
             android:exported="true">
             <intent-filter>
                 <action

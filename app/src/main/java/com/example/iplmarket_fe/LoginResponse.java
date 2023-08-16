@@ -1,0 +1,24 @@
+package com.example.iplmarket_fe;
+
+import com.google.gson.annotations.SerializedName;
+
+public class LoginResponse {
+    @SerializedName("code")
+    private int code;
+
+    @SerializedName("message")
+    private String message;
+
+    @SerializedName("userId")
+    private int userId;
+
+    private boolean success;
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+}
