@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import com.example.iplmarket_fe.R;
 
@@ -58,16 +59,17 @@ public class CreateFrag extends Fragment {
     private static Socket mSocket;
 
     private static final int CAMERA_REQUEST_CODE = 2;
-
-    private Uri cameraImageUri;
+    private static final int VIDEO_REQUEST_CODE = 3;
 
     private Button createBtnGallery, createBtnCamera, createBtnUprode;
 
-    ImageView createImageView1, createImageView2;
+    ImageView createImageView1;
     Uri uri;
+    private Uri cameraVideoUri;
+    VideoView createVideoView;
 
-    private EditText createName, createPrice, createEx;
-    private TextView lenName, lenPrice, lenEx, createDate;
+    private EditText createName, createPrice, createContent;
+    private TextView lenName, lenPrice, lenContent, createDate;
     private int num = 0; // 게시물 번호
     private String savedImagePath, savedVrPath;
 
@@ -78,11 +80,11 @@ public class CreateFrag extends Fragment {
 
         createName = fragmentView.findViewById(R.id.createName);
         createPrice = fragmentView.findViewById(R.id.createPrice);
-        createEx = fragmentView.findViewById(R.id.createEx);
+        createContent = fragmentView.findViewById(R.id.createContent);
 
         lenName = fragmentView.findViewById(R.id.lenName);
         lenPrice = fragmentView.findViewById(R.id.lenPrice);
-        lenEx = fragmentView.findViewById(R.id.lenEx);
+        lenContent = fragmentView.findViewById(R.id.lenContent);
 
 
         //EditText 글자 수 제한
@@ -112,7 +114,7 @@ public class CreateFrag extends Fragment {
             }
         });
 
-        createEx.addTextChangedListener(new TextWatcher() {
+        createContent.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
@@ -121,7 +123,7 @@ public class CreateFrag extends Fragment {
             }
             @Override
             public void afterTextChanged(Editable s) {
-                lenEx.setText(s.length()+"/300");
+                lenContent.setText(s.length()+"/300");
             }
         });
 
@@ -150,7 +152,6 @@ public class CreateFrag extends Fragment {
         // 이미지 가져오기
         createImageView1 = fragmentView.findViewById(R.id.createImageView1);
         createBtnGallery = fragmentView.findViewById(R.id.createBtnGallery);
-
         createBtnGallery.setOnClickListener(view -> {
             Intent intent = new Intent();
             intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -160,14 +161,13 @@ public class CreateFrag extends Fragment {
 
 
         // 카메라 버튼 클릭 이벤트 처리
+        createVideoView = fragmentView.findViewById(R.id.createVideoView);
         createBtnCamera = fragmentView.findViewById(R.id.createBtnCamera);
-        createImageView2 = fragmentView.findViewById(R.id.createImageView2);
-
         createBtnCamera.setOnClickListener(view -> {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
                 OpenCamera();
             } else {
-                ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.CAMERA},CAMERA_REQUEST_CODE);    // 권한 요청
+                ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.CAMERA}, VIDEO_REQUEST_CODE);
             }
         });
 
@@ -188,9 +188,6 @@ public class CreateFrag extends Fragment {
             }
 
             // 소켓 이벤트 등록
-            // mSocket.on(Socket.EVENT_CONNECT, onConnect);
-            mSocket.on("product data", sendProductData);
-            mSocket.on("product image", sendImage);
             mSocket.on("product vr", sendVrModel);
 
             mSocket.connect();
@@ -240,12 +237,12 @@ public class CreateFrag extends Fragment {
         return imagePath;
     }
 
-    // 카메라 실행 결과 처리
+    // 카메라 권한 허용
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode ==CAMERA_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {  // 권한 허용
+        if (requestCode == CAMERA_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 OpenCamera();
             }
         }
@@ -253,23 +250,24 @@ public class CreateFrag extends Fragment {
 
     // 카메라 실행
     private void OpenCamera() {
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        Intent cameraIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+
         if (cameraIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
-            // 이미지 파일을 저장할 임시 파일 생성
-            File imageFile = null;
+            // 동영상 파일을 저장할 임시 파일 생성
+            File videoFile = null;
             try {
                 String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-                String imageFileName = "JPEG_" + timeStamp + "_";
-                File storageDir = requireActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-                imageFile = File.createTempFile(imageFileName, ".jpg", storageDir);
-                savedVrPath = imageFile.getAbsolutePath(); // 이미지 파일 경로 저장
+                String videoFileName = "VIDEO_" + timeStamp + "_";
+                File storageDir = requireActivity().getExternalFilesDir(Environment.DIRECTORY_MOVIES); // DIRECTORY_MOVIES로 변경
+                videoFile = File.createTempFile(videoFileName, ".mp4", storageDir); // 확장자를 .mp4로 변경
+                savedVrPath = videoFile.getAbsolutePath(); // 동영상 파일 경로 저장
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            if (imageFile != null) {
-                savedVrPath = String.valueOf(Uri.fromFile(imageFile));
-                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri);
+            if (videoFile != null) {
+                savedVrPath = String.valueOf(Uri.fromFile(videoFile));
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(videoFile)); // 동영상 파일을 저장할 Uri를 설정
                 startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
             }
         }
@@ -280,8 +278,10 @@ public class CreateFrag extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode ==CAMERA_REQUEST_CODE&& resultCode == AppCompatActivity.RESULT_OK&& data != null) {
-            Bitmap photo = (Bitmap) data.getExtras().get("data");
-            createImageView2.setImageBitmap(photo);
+            cameraVideoUri = data.getData();
+
+            createVideoView.setVideoURI(cameraVideoUri);
+            createVideoView.start();
         }
     }
 
@@ -292,82 +292,8 @@ public class CreateFrag extends Fragment {
         createDate.setText(currentDate);
     }
 
-    // 소켓 연결 성공 시, 파일 전송 이벤트 발생
-    private Emitter.Listener sendProductData = args -> {
-        // EditText에 현재 입력되어있는 값을 가져옴
-        String uprodeName = createName.getText().toString();
-        String uprodePrice = createPrice.getText().toString();
-        String uprodeEx = createEx.getText().toString();
-        String uprodeDate = createDate.getText().toString();
-        int currentNum = num++;
+    // http 이미지
 
-        mSocket.emit("connectRecive", "Name: " + uprodeName +
-                ", Price: " + uprodePrice +
-                ", Explanation: " + uprodeEx +
-                ", Date: " + uprodeDate +
-                ", Current Num: " + currentNum);
-    };
-
-    // 이미지 파일을 서버로 전송
-    private Emitter.Listener sendImage = new Emitter.Listener() {
-        @RequiresApi(api = Build.VERSION_CODES.O)
-        @Override
-        public void call(Object... args) {
-            // 가져올 파일 경로
-            File file = new File(savedImagePath + File.separator + "productImage.obj");
-
-
-            try {
-                // 파일 데이터 읽기
-                FileInputStream fis;
-                fis = new FileInputStream(file);
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = fis.read(buffer)) != -1){
-                    bos.write(buffer, 0, bytesRead);
-                }
-
-                fis.close();
-                bos.close();
-
-                // 파일 Base64 인코딩
-                byte[] fileBytes = bos.toByteArray();
-                String encodedFile = Base64.getEncoder().encodeToString(fileBytes);
-
-                // 청크 설정 (한 번씩 보낼 데이터 크기) -> 실제 연결시 500000번으로 줄일것
-                int chunk = 800000;
-                int numOfChunks = (int)Math.ceil((double)encodedFile.length() / chunk);
-                int startIdx = 0, endIdx;
-
-                // 청크 개수 만큼 반복
-                for(int i=0; i<numOfChunks; i++){
-                    endIdx = Math.min(startIdx + chunk, encodedFile.length());
-                    JSONObject data = new JSONObject();
-
-                    // json 파일에 데이터 전체 크기, 현재 보낸 데이터 크기, 데이터 전송
-                    try{
-                        data.put("total", encodedFile.length());
-                        data.put("count", endIdx);
-                        data.put("data", encodedFile.substring(startIdx, endIdx));
-
-                        mSocket.emit("sendFile", data);
-
-                        // Thread.sleep(100); // 소켓 이중 연결됨
-                    } catch (Exception e){
-                        e.printStackTrace();
-                    }
-
-                    Log.d("Send Data ... ", ""+ Math.round(((double)endIdx / encodedFile.length() * 100.0) * 100) / 100.0 + "%");
-                    startIdx += chunk; // 다음 보낼 데이터 이어서 전송
-                }
-                Log.d("ImageUpload", "ImageFile sent successfully");
-
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-    };
 
     // VR 파일을 서버에 전송
     private Emitter.Listener sendVrModel = new Emitter.Listener() {

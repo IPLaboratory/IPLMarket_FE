@@ -97,11 +97,11 @@
                 android:text="이미지 가져오기" />
 
             <ImageView
-                android:id="@+id/createImageView2"
+                android:id="@+id/createVideoView"
                 android:layout_width="300dp"
-                android:layout_height="130dp"
+                android:layout_height="150dp"
                 android:layout_gravity="center"
-                android:layout_margin="10dp"
+                android:layout_margin="15dp"
                 app:srcCompat="@android:drawable/ic_menu_camera" />
 
             <Button
@@ -117,14 +117,14 @@
                 android:layout_margin="20dp">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/createEx"
+                    android:id="@+id/createContent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="상세설명"
                     android:maxLength="300" />
 
                 <TextView
-                    android:id="@+id/lenEx"
+                    android:id="@+id/lenContent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
