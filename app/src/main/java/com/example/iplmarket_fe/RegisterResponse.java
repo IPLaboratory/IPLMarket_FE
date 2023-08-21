@@ -8,8 +8,6 @@ public class RegisterResponse {
 
     @SerializedName("message")
     private String message;
-    @SerializedName("success")
-    private boolean success;
 
     public int getCode() {
         return code;
@@ -19,7 +17,4 @@ public class RegisterResponse {
         return message;
     }
 
-    public boolean isSuccess() {
-        return success;
-    }
 }

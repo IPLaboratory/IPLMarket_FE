@@ -1,19 +1,27 @@
 package com.example.iplmarket_fe;
 
+//import android.service.autofill.UserData;
+import com.example.iplmarket_fe.ApiResponse;
+
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
-import retrofit2.http.GET;
 import retrofit2.http.POST;
-import retrofit2.http.Query;
 
 public interface ServiceApi {
-    @POST("/user/login")
+   @POST("login/userLogin")
     Call<LoginResponse> userLogin(@Body LoginData data);
 
-    @POST("/user/join")
+    @POST("login/registUser")
     Call<RegisterResponse> userRegister(@Body RegisterData data);
 
-    @GET("checkDuplicateId")
-    Call<IdCheckResponse> checkDuplicateId(@Query("id") String id);
+    @POST("login/idcheck")
+    Call<CheckResponse> checkResponse(@Body UserData userData);
 
+    @POST("posts/boardlist")
+    Call<List<Post>> getPosts(@Body UserData userData);
+
+    @POST("posts/detail")
+    Call<ApiResponse> sendProductData(@Body int productNumber);
 }

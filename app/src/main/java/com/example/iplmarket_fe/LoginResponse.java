@@ -9,7 +9,7 @@ public class LoginResponse {
     @SerializedName("message")
     private String message;
 
-    @SerializedName("userId")
+    @SerializedName("id")
     private int userId;
 
     private boolean success;

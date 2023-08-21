@@ -30,13 +30,9 @@ public class Login extends AppCompatActivity {
         login_id = findViewById(R.id.login_id);
         login_pw = findViewById(R.id.login_pw);
 
-        // Enter key 방지
-        login_id.setOnKeyListener((view, keyCode, event) -> keyCode == KeyEvent.KEYCODE_ENTER);
-        login_pw.setOnKeyListener((view, keyCode, event) -> keyCode == KeyEvent.KEYCODE_ENTER);
-
         // Retrofit을 이용하여 서버와 연결
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.35.91:8080/")
+                .baseUrl("http://192.168.0.46:8080/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -50,12 +46,14 @@ public class Login extends AppCompatActivity {
             String userPW = login_pw.getText().toString();
 
             // 로그인 데이터 유효성 검사
-            if (userID.isEmpty() || userPW.isEmpty()) {
+            /*if (userID.isEmpty() || userPW.isEmpty()) {
                 Toast.makeText(this, "아이디와 비밀번호를 모두 입력해주세요.", Toast.LENGTH_SHORT).show();
             } else {
                 // 로그인 시도
                 startLogin(new LoginData(userID, userPW));
-            }
+            }*/
+            Intent intent = new Intent(this,MainActivity.class);
+            startActivity(intent);
         });
 
         // 회원가입 버튼 클릭 시 수행

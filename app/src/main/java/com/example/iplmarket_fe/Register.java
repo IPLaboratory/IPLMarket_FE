@@ -14,6 +14,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.gson.annotations.SerializedName;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -22,13 +24,15 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Register extends AppCompatActivity {
 
-    private EditText reg_id, reg_pw, reg_name, reg_nick, reg_number;
+    private EditText reg_id, reg_pwd, reg_name, reg_nickname, reg_number;
     private TextView len_id, len_pw, len_nick;
-    private Button reg_btn;
+    private Button reg_btn, reg_idCheck;
 
     private ProgressBar progressBar;
 
     private ServiceApi service;
+
+    private boolean isIdAvailable = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +41,9 @@ public class Register extends AppCompatActivity {
 
         // 값을 가져옴
         reg_id = findViewById(R.id.reg_id);
-        reg_pw = findViewById(R.id.reg_pw);
+        reg_pwd = findViewById(R.id.reg_pw);
         reg_name = findViewById(R.id.reg_name);
-        reg_nick = findViewById(R.id.reg_nick);
+        reg_nickname = findViewById(R.id.reg_nick);
         reg_number = findViewById(R.id.reg_number);
 
         len_id = findViewById(R.id.len_id);
@@ -47,7 +51,7 @@ public class Register extends AppCompatActivity {
         len_nick = findViewById(R.id.len_nick);
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.35.91:8080/")
+                .baseUrl("http://192.168.0.46:8080/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -72,7 +76,7 @@ public class Register extends AppCompatActivity {
             }
         });
 
-        reg_pw.addTextChangedListener(new TextWatcher() {
+        reg_pwd.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
@@ -87,7 +91,7 @@ public class Register extends AppCompatActivity {
             }
         });
 
-        reg_nick.addTextChangedListener(new TextWatcher() {
+        reg_nickname.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
@@ -102,94 +106,107 @@ public class Register extends AppCompatActivity {
             }
         });
 
+        // 아이디 중복 검사 버튼 클릭 시 수행
+        reg_idCheck = findViewById(R.id.reg_idCheck);
+        reg_idCheck.setOnClickListener(view -> {
+            String userID = reg_id.getText().toString();
+            UserData userData = new UserData(userID);
+
+            service.checkResponse(userData).enqueue(new Callback<CheckResponse>() {
+                @Override
+                public void onResponse(Call<CheckResponse> call, Response<CheckResponse> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        CheckResponse checkResponse = response.body();
+
+                        if (response.code() == 200) {
+                            if (checkResponse.isSuccess()) {
+                                // 해당 아이디 사용 가능
+                                isIdAvailable = true;
+                                Toast.makeText(Register.this, checkResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                            } else {
+                                // 해당 아이디 이미 존재
+                                isIdAvailable = false;
+                                Toast.makeText(Register.this, checkResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        } else if (response.code() == 500) {
+                            // 내부 서버 오류
+                            Toast.makeText(Register.this, "내부 서버 오류", Toast.LENGTH_SHORT).show();
+                        } else {
+                            // 다른 응답 코드
+                            Toast.makeText(Register.this, "서버 응답 오류", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        // 서버 응답 오류
+                        Toast.makeText(Register.this, "서버 응답 오류", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<CheckResponse> call, Throwable t) {
+                    // 네트워크 오류 처리
+                    Toast.makeText(Register.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+
+
         // 회원가입 버튼 클릭 시 수행
         reg_btn = findViewById(R.id.reg_btn);
         reg_btn.setOnClickListener(view -> {
-            // EditText에 현재 입력되어있는 값을 가져옴
-            String userID = reg_id.getText().toString();
-            String userPW = reg_pw.getText().toString();
-            String userName = reg_name.getText().toString();
-            String userNickname = reg_nick.getText().toString();
-            int userNumber = Integer.parseInt(reg_number.getText().toString());
+            if (isIdAvailable) {
+                String userId = reg_id.getText().toString();
+                String userPwd = reg_pwd.getText().toString();
+                String userName = reg_name.getText().toString();
+                String userNickname = reg_nickname.getText().toString();
+                String userNumberStr = reg_number.getText().toString();
 
-            // 아이디 중복 검사 수행
-            performIdCheck();
+                String formattedNumber = formatPhoneNumber(userNumberStr);
 
-            // 회원가입 데이터 생성
-            RegisterData registerData = new RegisterData(userID, userPW, userName, userNickname, userNumber);
+                RegisterData registerData = new RegisterData(userId, userPwd, userName, userNickname, formattedNumber);
 
-            // 회원가입 수행
-            회원가입수행(registerData);
+                // 회원가입 수행
+                registerRun(registerData);
 
-            // 로그인 화면으로 이동
-            Intent intent = new Intent(Register.this, Login.class);
-            startActivity(intent);
-        });
-
-
-    }
-    private void performIdCheck() {
-        String userID = reg_id.getText().toString();
-        String userPW = reg_pw.getText().toString();
-        String userName = reg_name.getText().toString();
-        String userNickname = reg_nick.getText().toString();
-        String userNumber = reg_number.getText().toString();
-        String id = reg_id.getText().toString();
-
-        // 아이디 중복 검사 수행
-        service.checkDuplicateId(id).enqueue(new Callback<IdCheckResponse>() {
-            @Override
-            public void onResponse(Call<IdCheckResponse> call, Response<IdCheckResponse> response) {
-                if (response.isSuccessful()) {
-                    IdCheckResponse result = response.body();
-                    if (result != null) {
-                        if (result.isSuccess()) {
-                            // 사용 가능한 아이디입니다.
-                            Toast.makeText(Register.this, "사용 가능한 아이디", Toast.LENGTH_SHORT).show();
-                        } else {
-                            // 아이디 중복인 경우
-                            Toast.makeText(Register.this, "이미 사용 중인 아이디입니다.", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                } else {
-                    Toast.makeText(Register.this, "서버 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
-                }
-                // 중복 검사 결과에 상관없이 UI 상태를 원래대로 복구
-                // showProgress(false);
-            }
-
-            @Override
-            public void onFailure(Call<IdCheckResponse> call, Throwable t) {
-                Toast.makeText(Register.this, "아이디 중복 확인 에러", Toast.LENGTH_SHORT).show();
-                Log.e("아이디 중복 확인 에러", t.getMessage());
-                // showProgress(false);
+                // 로그인 화면으로 이동
+                Intent intent = new Intent(Register.this, Login.class);
+                startActivity(intent);
+            } else {
+                Toast.makeText(Register.this, "아이디 사용 가능 여부를 확인하세요", Toast.LENGTH_SHORT).show();
             }
         });
+
     }
 
+    // 전화번호 형식 변경 함수
+    private String formatPhoneNumber(String phoneNumber) {
+        String strippedNumber = phoneNumber.replaceAll("-", "");
 
+        if (strippedNumber.length() == 11) {
+            return strippedNumber.replaceFirst("(\\d{3})(\\d{4})(\\d{4})", "$1-$2-$3");
+        } else {
+            return phoneNumber;
+        }
+    }
 
-    private void 회원가입수행(RegisterData data) {
+    private void registerRun(RegisterData data) {
         service.userRegister(data).enqueue(new Callback<RegisterResponse>() {
             @Override
             public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
-                if (response.isSuccessful()) {
-                    RegisterResponse result = response.body();
-                    if (result != null) {
-                        int responseCode = result.getCode(); // 응답 코드 가져오기
+                if (response.isSuccessful() && response.body() != null) {
+                    RegisterResponse registerResponse = response.body();
+                        int responseCode = registerResponse.getCode(); // 응답 코드 가져오기
 
                         if (responseCode == 201) {
                             // 회원가입 성공 처리
-                            Toast.makeText(Register.this, result.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Register.this, registerResponse.getMessage(), Toast.LENGTH_SHORT).show();
                             finish();
                         } else if (responseCode == 400) {
                             // 회원가입 실패 처리
-                            Toast.makeText(Register.this, result.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Register.this, registerResponse.getMessage(), Toast.LENGTH_SHORT).show();
                         } else if (responseCode == 500){
                             // 오류 발생 처리
                             Toast.makeText(Register.this, "알 수 없는 오류 발생", Toast.LENGTH_SHORT).show();
                         }
-                    }
                 } else {
                     // 서버 오류 처리
                     Toast.makeText(Register.this, "서버 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();

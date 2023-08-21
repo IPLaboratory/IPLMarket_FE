@@ -10,7 +10,7 @@ public class RetrofitClient {
             .addConverterFactory(GsonConverterFactory.create())
             .build();
 
-    public static Retrofit getClient() {
+    public static Retrofit getRetrofit() {
         return retrofit;
     }
 }

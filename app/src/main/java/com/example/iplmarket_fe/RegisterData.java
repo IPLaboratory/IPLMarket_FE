@@ -3,25 +3,27 @@ package com.example.iplmarket_fe;
 import com.google.gson.annotations.SerializedName;
 
 public class RegisterData {
-    @SerializedName("userName")
-    private String userName;
+    @SerializedName("id")
+    private String userId;
 
-    @SerializedName("userPwd")
+    @SerializedName("pwd")
     private String userPwd;
 
-    @SerializedName("id")
-    private String id;
+    @SerializedName("name")
+    private String userName;
 
-    public RegisterData(String userName, String userPwd, String name, String userNickname, int userNumber) {
-        this.userName = userName;
+    @SerializedName("nickname")
+    private String userNickname;
+
+    @SerializedName("phone_number")
+    private String userNumber;
+
+    public RegisterData(String userId, String userPwd, String userName, String userNickname, String userNumber) {
+        this.userId = userId;
         this.userPwd = userPwd;
+        this.userName = userName;
+        this.userNickname = userNickname;
+        this.userNumber = userNumber;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 }

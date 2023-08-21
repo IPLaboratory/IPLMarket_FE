@@ -3,14 +3,14 @@ package com.example.iplmarket_fe;
 import com.google.gson.annotations.SerializedName;
 
 public class LoginData {
-    @SerializedName("userEmail")
-    String userEmail;
+    @SerializedName("id")
+    private String userId;
 
-    @SerializedName("userPwd")
-    String userPwd;
+    @SerializedName("pwd")
+    private String userPwd;
 
-    public LoginData(String userEmail, String userPwd) {
-        this.userEmail = userEmail;
+    public LoginData(String userId, String userPwd) {
+        this.userId = userId;
         this.userPwd = userPwd;
     }
 }
