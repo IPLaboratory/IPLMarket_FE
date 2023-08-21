@@ -108,6 +108,7 @@ public class CreateFrag extends Fragment {
         create_name.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int keyCode, KeyEvent event) {
+
                 if (keyCode == KeyEvent.KEYCODE_ENTER) {
                     return true;
                 }
