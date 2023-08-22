@@ -20,6 +20,9 @@
         android:theme="@style/Theme.IPLMarket_FE"
         tools:targetApi="31">
         <activity
+            android:name=".home.ModelingRoad"
+            android:exported="false"/>
+        <activity
             android:name=".home.Product"
             android:exported="false"/>
         <activity
