@@ -17,6 +17,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.iplmarket_fe.R;
+import com.example.iplmarket_fe.SocketManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,11 +49,10 @@ public class Detail extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
 
         // 소켓 연결
-        try{
-            mSocket = IO.socket("Server IP:Port");
-            Log.d("Connected", "OK");
-        } catch (URISyntaxException e){
-            e.printStackTrace();
+        try {
+            mSocket = SocketManager.getSocket();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
         }
         mSocket.connect();
 
