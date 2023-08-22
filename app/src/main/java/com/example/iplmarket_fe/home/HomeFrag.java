@@ -49,8 +49,6 @@ public class HomeFrag extends Fragment {
                         "\n 설명 : " + item.getNotification(), Toast.LENGTH_LONG).show();
 
                 Intent intent = new Intent(getContext(), Detail.class);
-                // 여기서 필요한 정보를 인텐트에 추가할 수 있습니다
-                // 예: intent.putExtra("productId", item.getId());
                 startActivity(intent);
             }
         });
