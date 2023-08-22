@@ -1,5 +1,7 @@
 package com.example.iplmarket_fe.create;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -21,9 +23,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.VideoView;
 
 import com.example.iplmarket_fe.R;
+import com.example.iplmarket_fe.SocketManager;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -57,21 +61,16 @@ import io.socket.emitter.Emitter;
 public class CreateFrag extends Fragment {
 
     private static Socket mSocket;
-
-    private static final int CAMERA_REQUEST_CODE = 2;
-    private static final int VIDEO_REQUEST_CODE = 3;
-
-    private Button createBtnGallery, createBtnCamera, createBtnUprode;
-
-    ImageView createImageView1;
-    Uri uri;
-    private Uri cameraVideoUri;
-    VideoView createVideoView;
-
+    private static final int REQUEST_CAMERA_PERMISSION = 100;
+    private static final int REQUEST_VIDEO_CAPTURE = 200;
     private EditText createName, createPrice, createContent;
     private TextView lenName, lenPrice, lenContent, createDate;
+    private ImageView createImageView;
+    private VideoView createVideoView;
+    private Button createBtnGallery, createBtnCamera, createBtnUpload;
+    Uri imageUri, savedVrPath;
     private int num = 0; // 게시물 번호
-    private String savedImagePath, savedVrPath;
+    private String savedImagePath;
 
     @Nullable
     @Override
@@ -86,71 +85,13 @@ public class CreateFrag extends Fragment {
         lenPrice = fragmentView.findViewById(R.id.lenPrice);
         lenContent = fragmentView.findViewById(R.id.lenContent);
 
-
-        //EditText 글자 수 제한
-        createName.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-            @Override
-            public void afterTextChanged(Editable s) {
-                lenName.setText(s.length()+"/30");
-            }
-        });
-
-        createPrice.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-            @Override
-            public void afterTextChanged(Editable s) {
-                lenPrice.setText(s.length()+"/8");
-            }
-        });
-
-        createContent.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-            @Override
-            public void afterTextChanged(Editable s) {
-                lenContent.setText(s.length()+"/300");
-            }
-        });
-
-        // Enter key 방지
-        createName.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View view, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        createPrice.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View view, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_ENTER) {
-                    return true;
-                }
-                return false;
-            }
-        });
-
+        // EditText 글자 수 제한
+        initializeEditTextWithLimit(fragmentView, R.id.createName, R.id.lenName, 30);
+        initializeEditTextWithLimit(fragmentView, R.id.createPrice, R.id.lenPrice, 8);
+        initializeEditTextWithLimit(fragmentView, R.id.createContent, R.id.lenContent, 300);
 
         // 이미지 가져오기
-        createImageView1 = fragmentView.findViewById(R.id.createImageView1);
+        createImageView = fragmentView.findViewById(R.id.createImageView);
         createBtnGallery = fragmentView.findViewById(R.id.createBtnGallery);
         createBtnGallery.setOnClickListener(view -> {
             Intent intent = new Intent();
@@ -159,15 +100,19 @@ public class CreateFrag extends Fragment {
             startActivityResult.launch(intent);
         });
 
-
         // 카메라 버튼 클릭 이벤트 처리
         createVideoView = fragmentView.findViewById(R.id.createVideoView);
         createBtnCamera = fragmentView.findViewById(R.id.createBtnCamera);
-        createBtnCamera.setOnClickListener(view -> {
-            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                OpenCamera();
-            } else {
-                ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.CAMERA}, VIDEO_REQUEST_CODE);
+        createBtnCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(getActivity(),
+                            new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+                } else {
+                    openCamera();
+                }
             }
         });
 
@@ -176,26 +121,41 @@ public class CreateFrag extends Fragment {
         setCurrentDate();
 
         // 등록 버튼 클릭 시 정보 저장
-        createBtnUprode = fragmentView.findViewById(R.id.createBtnUprode);
-        createBtnUprode.setOnClickListener(view -> {
-
-            // 소켓 연결
-            try{
-                mSocket = IO.socket("Server IP:Port");
-                Log.d("Connected", "OK");
-            }catch (URISyntaxException e){
-                e.printStackTrace();
-            }
-
-            // 소켓 이벤트 등록
-            mSocket.on("product vr", sendVrModel);
-
-            mSocket.connect();
+        createBtnUpload = fragmentView.findViewById(R.id.createBtnUpload);
+        createBtnUpload.setOnClickListener(view -> {
+            // http
         });
+
+        // 소켓 연결
+        try {
+            mSocket = SocketManager.getSocket();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        mSocket.on("product vr", sendVrModel);
+        mSocket.connect();
 
         return fragmentView;
     }
 
+    // EditText 초기화 및 글자 수 제한 설정을 위한 메서드
+    private void initializeEditTextWithLimit(View rootView, int editTextId, int counterTextViewId, int maxLength) {
+        EditText editText = rootView.findViewById(editTextId);
+        TextView counterTextView = rootView.findViewById(counterTextViewId);
+
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                counterTextView.setText(s.length() + "/" + maxLength);
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        });
+    }
 
     // 갤러리에서 이미지 가져오기
     ActivityResultLauncher<Intent> startActivityResult = registerForActivityResult(
@@ -204,14 +164,14 @@ public class CreateFrag extends Fragment {
                 @Override
                 public void onActivityResult(ActivityResult result) {
                     if (result.getResultCode() == AppCompatActivity.RESULT_OK&& result.getData() != null) {
-                        uri = result.getData().getData();
-                        savedImagePath = getImagePathFromUri(uri);
+                        imageUri = result.getData().getData();
+                        savedImagePath = getImagePathFromUri(imageUri);
 
                         try {
                             if (savedImagePath != null) {
                                 File imageFile = new File(savedImagePath);
                                 if (imageFile.exists()) {
-                                    createImageView1.setImageURI(Uri.fromFile(imageFile));
+                                    createImageView.setImageURI(Uri.fromFile(imageFile));
                                 } else {
                                     Log.e("Image Error", "Image file does not exist.");
                                 }
@@ -237,53 +197,37 @@ public class CreateFrag extends Fragment {
         return imagePath;
     }
 
-    // 카메라 권한 허용
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == CAMERA_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                OpenCamera();
-            }
-        }
-    }
 
     // 카메라 실행
-    private void OpenCamera() {
-        Intent cameraIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-
-        if (cameraIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
-            // 동영상 파일을 저장할 임시 파일 생성
-            File videoFile = null;
-            try {
-                String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-                String videoFileName = "VIDEO_" + timeStamp + "_";
-                File storageDir = requireActivity().getExternalFilesDir(Environment.DIRECTORY_MOVIES); // DIRECTORY_MOVIES로 변경
-                videoFile = File.createTempFile(videoFileName, ".mp4", storageDir); // 확장자를 .mp4로 변경
-                savedVrPath = videoFile.getAbsolutePath(); // 동영상 파일 경로 저장
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            if (videoFile != null) {
-                savedVrPath = String.valueOf(Uri.fromFile(videoFile));
-                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(videoFile)); // 동영상 파일을 저장할 Uri를 설정
-                startActivityForResult(cameraIntent, CAMERA_REQUEST_CODE);
-            }
-        }
+    private void openCamera() {
+        Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);
     }
 
-    // 카메라 실행 결과 처리
+    // 촬영한 영상 화면에 출력
     @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode ==CAMERA_REQUEST_CODE&& resultCode == AppCompatActivity.RESULT_OK&& data != null) {
-            cameraVideoUri = data.getData();
-
-            createVideoView.setVideoURI(cameraVideoUri);
+        if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK) {
+            Uri savedVrPath = data.getData();
+            createVideoView.setVideoURI(savedVrPath);
             createVideoView.start();
         }
     }
+
+    // 카메라 권한 요청 여부
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openCamera();
+            } else {
+                Toast.makeText(getActivity(), "Camera permission denied.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
 
     // 현재 날짜를 설정하는 도우미 메서드
     private void setCurrentDate() {

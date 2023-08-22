@@ -39,7 +39,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="상품명"
-                    android:maxLength="30" />
+                    android:maxLength="30"
+                    android:singleLine="true"
+                    android:lines="1" />
 
                 <TextView
                     android:id="@+id/lenName"
@@ -62,7 +64,9 @@
                     android:layout_height="wrap_content"
                     android:digits="0123456789"
                     android:hint="가격"
-                    android:maxLength="8" />
+                    android:maxLength="8"
+                    android:singleLine="true"
+                    android:lines="1" />
 
                 <TextView
                     android:id="@+id/lenPrice"
@@ -82,7 +86,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <ImageView
-                android:id="@+id/createImageView1"
+                android:id="@+id/createImageView"
                 android:layout_width="300dp"
                 android:layout_height="130dp"
                 android:layout_gravity="center"
@@ -96,13 +100,12 @@
                 android:layout_gravity="center"
                 android:text="이미지 가져오기" />
 
-            <ImageView
+            <VideoView
                 android:id="@+id/createVideoView"
                 android:layout_width="300dp"
                 android:layout_height="150dp"
                 android:layout_gravity="center"
-                android:layout_margin="15dp"
-                app:srcCompat="@android:drawable/ic_menu_camera" />
+                android:layout_margin="15dp" />
 
             <Button
                 android:id="@+id/createBtnCamera"
@@ -133,7 +136,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <Button
-                android:id="@+id/createBtnUprode"
+                android:id="@+id/createBtnUpload"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="20dp"
