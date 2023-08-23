@@ -2,6 +2,10 @@ plugins {
     id 'com.android.application'
 }
 
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+
 android {
     namespace 'com.example.iplmarket_fe'
     compileSdk 34
@@ -14,6 +18,12 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildFeatures {
+            buildConfig true
+        }
+
+        buildConfigField "String", "serverIP", properties['serverIP']
     }
 
     buildTypes {
