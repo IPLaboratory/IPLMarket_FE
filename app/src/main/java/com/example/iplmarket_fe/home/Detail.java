@@ -1,59 +1,90 @@
 package com.example.iplmarket_fe.home;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
-import android.view.MenuItem;
+import android.os.Environment;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import com.example.iplmarket_fe.R;
+import com.example.iplmarket_fe.SocketManager;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.Base64;
+
+import io.socket.client.IO;
+import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 
 public class Detail extends AppCompatActivity {
 
-    private ImageView detail_imageView;
-    private TextView detail_et_name, detail_et_price, detail_et_ex, detail_et_date;
-    private Button detail_btn_vr, detail_btn_buy;
-    private ImageButton detail_btn_image;
+    private static Socket mSocket;
+    private ImageView detailImageView;
+    private TextView detailEtName, detailEtPrice, detailEtContent, detailEtDate;
+    private Button detailBtnVr, detailBtnBuy;
+    private ImageButton detailBtnImage;
     boolean i = true;
+    private FileOutputStream outputStream;
+    private int num;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        // 정보를 서버에서 가져와 출력
+        // 소켓 연결
+        try {
+            mSocket = SocketManager.getSocket();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        mSocket.connect();
 
+        // http
+        detailEtName = findViewById(R.id.detailEtName);
+        detailEtPrice = findViewById(R.id.detailEtPrice);
+        detailEtContent = findViewById(R.id.detailEtContent);
+        detailEtDate = findViewById(R.id.detailEtDate);
 
         // VR Road 버튼 클릭 이벤트 처리
-        detail_btn_vr = findViewById(R.id.detail_btn_vr);
-        detail_btn_vr.setOnClickListener(view -> {
-
+        detailBtnVr = findViewById(R.id.detailBtnVr);
+        detailBtnVr.setOnClickListener(view -> {
+            mSocket.on("VR modeling Rode", RodeVr);    // 소켓 이벤트
         });
 
         // 구매 버튼 클릭 이벤트 처리 -> 채팅
-        detail_btn_buy = findViewById(R.id.detail_btn_buy);
-        detail_btn_buy.setOnClickListener(view -> {
+        detailBtnBuy = findViewById(R.id.detailBtnBuy);
+        detailBtnBuy.setOnClickListener(view -> {
             Intent intent = new Intent(Detail.this, Chatting.class);
             startActivity(intent);
         });
 
         // 관심 버튼 클릭 이벤트 처리
-        detail_btn_image = findViewById(R.id.detail_btn_image);
-        detail_btn_image.setOnClickListener(view -> {
+        detailBtnImage = findViewById(R.id.detailBtnImage);
+        detailBtnImage.setOnClickListener(view -> {
             if (i) {
-                detail_btn_image.setImageResource(R.drawable.heart_after);
+                detailBtnImage.setImageResource(R.drawable.heart_after);
                 i = false;
                 Toast.makeText(this.getApplicationContext(),"관심 목록에 추가되었습니다.", Toast.LENGTH_SHORT).show();
                 // 관심 목록 페이지(Wishlist)에 추가
             }else {
-                detail_btn_image.setImageResource(R.drawable.heart_before);
+                detailBtnImage.setImageResource(R.drawable.heart_before);
                 i = true;
                 Toast.makeText(this.getApplicationContext(),"관심 목록에서 삭제되었습니다.", Toast.LENGTH_SHORT).show();
                 // 관심 목록 페이지(Wishlist)에서 삭제
@@ -61,21 +92,54 @@ public class Detail extends AppCompatActivity {
         });
     }
 
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                // 뒤로 가기 버튼을 눌렀을 때 처리할 코드 추가
-                setHomeFrag();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+    // 소켓 통신으로 obj파일 수신
+    private Emitter.Listener RodeVr = new Emitter.Listener() {
+        @RequiresApi(api = Build.VERSION_CODES.O)
+        @Override
+        public void call(Object... args) {
+            // 전달 받은 원본 데이터
+            JSONObject data = (JSONObject) args[0];
 
-    private void setHomeFrag() {
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        HomeFrag homeFrag = new HomeFrag();
-        ft.replace(R.id.main_frame, homeFrag);
-        ft.commit();
+            try {
+                boolean success = data.getBoolean("success");
+
+                if (success){ // 성공적인 전달
+                    String base64File = data.getString("base64File");
+                    saveVrData(base64File, "modeling.obj");
+                } else {
+                    Log.e("VR modeling Response", "Err : " + data.getString("message"));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
+    // 수신한 obj 파일 디코딩 후 저장
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void saveVrData(String base64File, String fileName){
+        try {
+            byte[] fileData = Base64.getDecoder().decode(base64File);
+
+            // 저장 경로
+            String filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                    + File.separator + fileName;
+
+            // 저장
+            File file = new File(filePath);
+            outputStream = new FileOutputStream(file);
+            outputStream.write(fileData);
+            outputStream.close();
+
+            // 이미지 파일을 이미지뷰에 출력
+            Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+            if (bitmap != null) {
+                detailImageView.setImageBitmap(bitmap);
+            }
+
+            Log.d("VR modeling", "Download Complete - Path: " + filePath);
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }
