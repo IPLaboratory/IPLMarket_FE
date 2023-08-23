@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# unity exported library
+unityLibrary
