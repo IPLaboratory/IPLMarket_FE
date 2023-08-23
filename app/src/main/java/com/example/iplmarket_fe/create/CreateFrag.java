@@ -6,16 +6,13 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -123,17 +120,21 @@ public class CreateFrag extends Fragment {
         // 등록 버튼 클릭 시 정보 저장
         createBtnUpload = fragmentView.findViewById(R.id.createBtnUpload);
         createBtnUpload.setOnClickListener(view -> {
-            // http
-        });
 
-        // 소켓 연결
-        try {
-            mSocket = SocketManager.getSocket();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-        mSocket.on("product vr", sendVrModel);
-        mSocket.connect();
+            // http
+
+
+            // 소켓 연결
+            try {
+                mSocket = SocketManager.getSocket();
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+            mSocket.on("product vr", sendVrModel);
+            mSocket.connect();
+
+            Toast.makeText(getActivity(),"등록되었습니다..", Toast.LENGTH_SHORT).show();
+        });
 
         return fragmentView;
     }
@@ -209,7 +210,7 @@ public class CreateFrag extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK) {
-            Uri savedVrPath = data.getData();
+            savedVrPath = data.getData();
             createVideoView.setVideoURI(savedVrPath);
             createVideoView.start();
         }
@@ -228,16 +229,12 @@ public class CreateFrag extends Fragment {
         }
     }
 
-
     // 현재 날짜를 설정하는 도우미 메서드
     private void setCurrentDate() {
         SimpleDateFormat simpleDataFormat = new SimpleDateFormat("yyyy-MM-dd");
         String currentDate = simpleDataFormat.format(new Date());
         createDate.setText(currentDate);
     }
-
-    // http 이미지
-
 
     // VR 파일을 서버에 전송
     private Emitter.Listener sendVrModel = new Emitter.Listener() {
