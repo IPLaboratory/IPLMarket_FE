@@ -40,7 +40,7 @@
                 android:layout_margin="20dp"/>
 
             <ImageView
-                android:id="@+id/detail_imageView"
+                android:id="@+id/detail_image"
                 android:layout_width="300dp"
                 android:layout_height="130dp"
                 android:layout_gravity="center"

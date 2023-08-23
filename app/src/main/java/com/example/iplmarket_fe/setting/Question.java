@@ -1,4 +1,4 @@
-package com.example.iplmarket_fe;
+package com.example.iplmarket_fe.setting;
 
 import android.os.Bundle;
 import android.view.View;

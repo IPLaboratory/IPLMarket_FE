@@ -1,10 +1,10 @@
-package com.example.iplmarket_fe;
+package com.example.iplmarket_fe.server.response;
 
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
 
-public class Post {
+public class PostResponse {
     @SerializedName("title")
     private String postTitle;
     @SerializedName("content")
@@ -17,6 +17,8 @@ public class Post {
     private String userId;
     @SerializedName("num")
     private int num;
+    @SerializedName("price")
+    private String price;
     public String getPostTitle() {
         return postTitle;
     }
@@ -30,16 +32,18 @@ public class Post {
         return postRegistDate;
     }
     public String getUserId(){return userId;}
+    public String getPrice(){return price;}
     public int getNum(){
         return num;
     }
 
-    public Post(String postTitle, String postContent, String postThumbnail, Date postRegistDate, String userId, int num) {
+    public PostResponse(String postTitle, String postContent, String postThumbnail, Date postRegistDate, String userId, int num, String price) {
         this.postTitle = postTitle;
         this.postContent = postContent;
         this.postThumbnail = postThumbnail;
         this.postRegistDate = postRegistDate;
         this.userId = userId;
         this.num  = num;
+        this.price = price;
     }
 }

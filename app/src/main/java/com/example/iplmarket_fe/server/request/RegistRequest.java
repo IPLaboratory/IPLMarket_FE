@@ -1,8 +1,8 @@
-package com.example.iplmarket_fe;
+package com.example.iplmarket_fe.server.request;
 
 import com.google.gson.annotations.SerializedName;
 
-public class RegisterData {
+public class RegistRequest {
     @SerializedName("id")
     private String userId;
 
@@ -18,7 +18,7 @@ public class RegisterData {
     @SerializedName("phone_number")
     private String userNumber;
 
-    public RegisterData(String userId, String userPwd, String userName, String userNickname, String userNumber) {
+    public RegistRequest(String userId, String userPwd, String userName, String userNickname, String userNumber) {
         this.userId = userId;
         this.userPwd = userPwd;
         this.userName = userName;

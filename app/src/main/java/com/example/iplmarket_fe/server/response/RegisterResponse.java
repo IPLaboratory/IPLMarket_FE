@@ -1,16 +1,16 @@
-package com.example.iplmarket_fe;
+package com.example.iplmarket_fe.server.response;
 
 import com.google.gson.annotations.SerializedName;
 
-public class CheckResponse {
-    @SerializedName("success")
-    private boolean success;
+public class RegisterResponse {
+    @SerializedName("code")
+    private int code;
 
     @SerializedName("message")
     private String message;
 
-    public boolean isSuccess() {
-        return success;
+    public int getCode() {
+        return code;
     }
 
     public String getMessage() {

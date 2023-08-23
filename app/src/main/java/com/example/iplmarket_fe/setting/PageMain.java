@@ -1,4 +1,4 @@
-package com.example.iplmarket_fe;
+package com.example.iplmarket_fe.setting;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;

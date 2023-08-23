@@ -25,49 +25,46 @@
         android:networkSecurityConfig="@xml/network_security_config"
         tools:targetApi="31">
         <activity
-            android:name=".Product"
+            android:name=".home.PostAdapter"
             android:exported="false"/>
         <activity
-            android:name=".PostAdapter"
+            android:name=".home.PageProduct"
             android:exported="false"/>
         <activity
-            android:name=".PageProduct"
+            android:name=".setting.Wrote"
             android:exported="false"/>
         <activity
-            android:name=".Wrote"
+            android:name=".setting.Wishlist"
             android:exported="false"/>
         <activity
-            android:name=".Wishlist"
+            android:name=".setting.Question"
             android:exported="false"/>
         <activity
-            android:name=".Question"
+            android:name=".setting.PageMain"
             android:exported="false"/>
         <activity
-            android:name=".PageMain"
+            android:name=".home.Detail"
             android:exported="false"/>
         <activity
-            android:name=".Detail"
-            android:exported="false"/>
-        <activity
-            android:name=".Chatting"
+            android:name=".home.Chatting"
             android:exported="false"/>
         <activity
             android:name=".MainActivity"
             android:exported="false"/>
         <activity
-            android:name=".Register"
+            android:name=".setting.Register"
             android:exported="false"/>
         <activity
-            android:name=".SettingFrag"
+            android:name=".setting.SettingFrag"
             android:exported="false"/>
         <activity
-            android:name=".HomeFrag"
+            android:name=".home.HomeFrag"
             android:exported="false"/>
         <activity
-            android:name=".CreateFrag"
+            android:name=".create.CreateFrag"
             android:exported="false"/>
         <activity
-            android:name=".Login"
+            android:name=".setting.Login"
             android:exported="true">
             <intent-filter>
                 <action

@@ -1,12 +1,12 @@
-package com.example.iplmarket_fe;
+package com.example.iplmarket_fe.server.request;
 
 import com.google.gson.annotations.SerializedName;
 
-public class UserData {
+public class PostListRequest {
     @SerializedName("userId")
     String id;
 
-    public UserData(String id) {
+    public PostListRequest(String id) {
         this.id = id;
     }
 }

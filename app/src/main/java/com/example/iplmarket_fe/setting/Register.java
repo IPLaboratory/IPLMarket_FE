@@ -1,4 +1,4 @@
-package com.example.iplmarket_fe;
+package com.example.iplmarket_fe.setting;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,7 +14,12 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.gson.annotations.SerializedName;
+import com.example.iplmarket_fe.server.response.IdValidationResponse;
+import com.example.iplmarket_fe.R;
+import com.example.iplmarket_fe.server.request.RegistRequest;
+import com.example.iplmarket_fe.server.response.RegisterResponse;
+import com.example.iplmarket_fe.server.ServiceApi;
+import com.example.iplmarket_fe.server.request.IdValidationRequest;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -30,7 +35,7 @@ public class Register extends AppCompatActivity {
 
     private ProgressBar progressBar;
 
-    private ServiceApi service;
+    private ServiceApi serviceApi;
 
     private boolean isIdAvailable = false;
 
@@ -51,11 +56,11 @@ public class Register extends AppCompatActivity {
         len_nick = findViewById(R.id.len_nick);
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.0.46:8080/")
+                .baseUrl("http://192.168.0.14:8080/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        service = retrofit.create(ServiceApi.class);
+        serviceApi = retrofit.create(ServiceApi.class);
 
         progressBar = findViewById(R.id.progressBar);
 
@@ -110,39 +115,39 @@ public class Register extends AppCompatActivity {
         reg_idCheck = findViewById(R.id.reg_idCheck);
         reg_idCheck.setOnClickListener(view -> {
             String userID = reg_id.getText().toString();
-            UserData userData = new UserData(userID);
+            IdValidationRequest idValidationRequest = new IdValidationRequest(userID);
 
-            service.checkResponse(userData).enqueue(new Callback<CheckResponse>() {
+            serviceApi.checkResponse(idValidationRequest).enqueue(new Callback<IdValidationResponse>() {
                 @Override
-                public void onResponse(Call<CheckResponse> call, Response<CheckResponse> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        CheckResponse checkResponse = response.body();
+                public void onResponse(Call<IdValidationResponse> call, Response<IdValidationResponse> response) {
+                    if (response.isSuccessful()) {
+                        IdValidationResponse idValidationResponse = response.body();
 
                         if (response.code() == 200) {
-                            if (checkResponse.isSuccess()) {
+                            if (idValidationResponse.isSuccess()) {
                                 // 해당 아이디 사용 가능
                                 isIdAvailable = true;
-                                Toast.makeText(Register.this, checkResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(Register.this, idValidationResponse.getMessage(), Toast.LENGTH_SHORT).show();
                             } else {
                                 // 해당 아이디 이미 존재
                                 isIdAvailable = false;
-                                Toast.makeText(Register.this, checkResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(Register.this, idValidationResponse.getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         } else if (response.code() == 500) {
                             // 내부 서버 오류
                             Toast.makeText(Register.this, "내부 서버 오류", Toast.LENGTH_SHORT).show();
                         } else {
                             // 다른 응답 코드
-                            Toast.makeText(Register.this, "서버 응답 오류", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Register.this, "서버 응답 오류1", Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         // 서버 응답 오류
-                        Toast.makeText(Register.this, "서버 응답 오류", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Register.this, "서버 응답 오류2", Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 @Override
-                public void onFailure(Call<CheckResponse> call, Throwable t) {
+                public void onFailure(Call<IdValidationResponse> call, Throwable t) {
                     // 네트워크 오류 처리
                     Toast.makeText(Register.this, t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
@@ -162,10 +167,10 @@ public class Register extends AppCompatActivity {
 
                 String formattedNumber = formatPhoneNumber(userNumberStr);
 
-                RegisterData registerData = new RegisterData(userId, userPwd, userName, userNickname, formattedNumber);
+                RegistRequest registRequest = new RegistRequest(userId, userPwd, userName, userNickname, formattedNumber);
 
                 // 회원가입 수행
-                registerRun(registerData);
+                registerRun(registRequest);
 
                 // 로그인 화면으로 이동
                 Intent intent = new Intent(Register.this, Login.class);
@@ -188,8 +193,8 @@ public class Register extends AppCompatActivity {
         }
     }
 
-    private void registerRun(RegisterData data) {
-        service.userRegister(data).enqueue(new Callback<RegisterResponse>() {
+    private void registerRun(RegistRequest data) {
+        serviceApi.userRegister(data).enqueue(new Callback<RegisterResponse>() {
             @Override
             public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
