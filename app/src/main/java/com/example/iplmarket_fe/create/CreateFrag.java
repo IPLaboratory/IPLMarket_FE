@@ -133,7 +133,7 @@ public class CreateFrag extends Fragment {
             mSocket.on("product vr", sendVrModel);
             mSocket.connect();
 
-            Toast.makeText(getActivity(),"등록되었습니다..", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(),"등록되었습니다.", Toast.LENGTH_SHORT).show();
         });
 
         return fragmentView;
