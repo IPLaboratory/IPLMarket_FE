@@ -9,8 +9,8 @@
         <item name="colorSecondaryVariant">@color/teal_700</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor">@android:color/transparent</item> <!-- Set status bar color to transparent -->
-        <item name="android:windowTranslucentStatus">true</item> <!-- Make status bar translucent -->
+<!--        <item name="android:statusBarColor">@android:color/transparent</item> &lt;!&ndash; Set status bar color to transparent &ndash;&gt;-->
+<!--        <item name="android:windowTranslucentStatus">true</item> &lt;!&ndash; Make status bar translucent &ndash;&gt;-->
         <!-- Customize your theme here. -->
     </style>
 </resources>

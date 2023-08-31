@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.iplmarket_fe.BuildConfig;
 import com.example.iplmarket_fe.server.response.PostResponse;
 import com.example.iplmarket_fe.R;
 import com.example.iplmarket_fe.server.ServiceApi;
@@ -50,9 +51,10 @@ public class HomeFrag extends Fragment {
 
         // Retrofit 인스턴스 생성
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.0.14:8080/")
+                .baseUrl(BuildConfig.serverIP)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+
 
         serviceApi = retrofit.create(ServiceApi.class);
 
@@ -92,7 +94,7 @@ public class HomeFrag extends Fragment {
 
                     // 각각의 게시물에 대해 썸네일 이미지를 디코딩하여 저장
                     for (PostResponse postResponse : postResponses) {
-                        Log.d("aaa", postResponse.getPostThumbnail());
+                        Log.d("디코딩", postResponse.getPostThumbnail());
                         // saveTestData(post.getPostThumbnail(), "thumbnail_" + post.getNum() + ".jpg");
                     }
                 } else {
