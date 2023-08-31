@@ -30,7 +30,7 @@
             android:orientation="vertical" >
 
             <TextView
-                android:id="@+id/detailTv"
+                android:id="@+id/detail_tv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="상품 정보"
@@ -40,7 +40,7 @@
                 android:layout_margin="20dp"/>
 
             <ImageView
-                android:id="@+id/detailImageView"
+                android:id="@+id/detail_image"
                 android:layout_width="300dp"
                 android:layout_height="130dp"
                 android:layout_gravity="center"
@@ -53,14 +53,14 @@
                 android:layout_margin="20dp">
 
                 <TextView
-                    android:id="@+id/detailName"
+                    android:id="@+id/detail_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="상품명 : "
                     android:textSize="20sp"/>
 
                 <TextView
-                    android:id="@+id/detailEtName"
+                    android:id="@+id/detail_et_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -77,14 +77,14 @@
                 android:layout_marginEnd="20dp" >
 
                 <TextView
-                    android:id="@+id/detaiPrice"
+                    android:id="@+id/detail_price"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="가격 : "
                     android:textSize="20sp"/>
 
                 <TextView
-                    android:id="@+id/detailEtPrice"
+                    android:id="@+id/detail_et_price"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -102,14 +102,14 @@
                 android:layout_marginTop="20dp" >
 
                 <TextView
-                    android:id="@+id/detailNick"
+                    android:id="@+id/detail_nick"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="작성자 : "
                     android:textSize="20sp"/>
 
                 <TextView
-                    android:id="@+id/detailEtNick"
+                    android:id="@+id/detail_et_nick"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -125,14 +125,14 @@
                 android:layout_margin="20dp">
 
                 <TextView
-                    android:id="@+id/detailDate"
+                    android:id="@+id/detail_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="등록 날짜 : "
                     android:textSize="20sp"/>
 
                 <TextView
-                    android:id="@+id/detailEtDate"
+                    android:id="@+id/detail_et_date"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -142,10 +142,10 @@
             </LinearLayout>
 
             <Button
-                android:id="@+id/detailBtnVr"
+                android:id="@+id/detail_btn_ar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="VR Load"
+                android:text="AR Load"
                 android:layout_gravity="center"
                 android:layout_margin="10dp"/>
 
@@ -156,14 +156,14 @@
                 android:layout_margin="20dp">
 
                 <TextView
-                    android:id="@+id/detailContent"
+                    android:id="@+id/detail_ex"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="상세 설명 : "
                     android:textSize="20sp"/>
 
                 <TextView
-                    android:id="@+id/detailEtContent"
+                    android:id="@+id/detail_et_ex"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -179,7 +179,7 @@
                 android:layout_marginBottom="20dp">
 
                 <Button
-                    android:id="@+id/detailBtnBuy"
+                    android:id="@+id/detail_btn_buy"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="9"
@@ -189,7 +189,7 @@
                     android:layout_marginEnd="30dp"/>
 
                 <ImageButton
-                    android:id="@+id/detailBtnImage"
+                    android:id="@+id/detail_btn_image"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"

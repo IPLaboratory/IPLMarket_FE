@@ -7,6 +7,13 @@
     tools:context=".setting.Register"
     android:orientation="vertical">
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" />
+
+
     <TextView
         android:id="@+id/reg_tv"
         android:layout_width="wrap_content"
@@ -27,6 +34,8 @@
             android:id="@+id/reg_id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:imeOptions="actionNext"
             android:hint="아이디"
             android:maxLength="10"/>
 
@@ -63,6 +72,8 @@
             android:id="@+id/reg_pw"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:imeOptions="actionGo"
             android:hint="비밀번호"
             android:inputType="textPassword"
             android:maxLength="15" />
@@ -88,6 +99,8 @@
             android:id="@+id/reg_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:imeOptions="actionGo"
             android:hint="이름"/>
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -103,6 +116,8 @@
             android:id="@+id/reg_nick"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:imeOptions="actionGo"
             android:hint="닉네임"
             android:maxLength="12"/>
 
@@ -126,7 +141,9 @@
             android:id="@+id/reg_number"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="전화번호" />
+            android:hint="전화번호"
+            android:imeOptions="actionGo"
+            android:singleLine="true" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -134,6 +151,8 @@
         android:id="@+id/reg_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:imeOptions="actionDone"
         android:text="회원가입"
         android:layout_gravity="center"
         android:layout_marginTop="40dp"

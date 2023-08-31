@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:fitsSystemWindows="true">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -39,9 +40,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="상품명"
+                    android:lines="1"
                     android:maxLength="30"
                     android:singleLine="true"
-                    android:lines="1" />
+                    android:text="상품의 이름을 입력해주세요" />
 
                 <TextView
                     android:id="@+id/lenName"
@@ -64,9 +66,10 @@
                     android:layout_height="wrap_content"
                     android:digits="0123456789"
                     android:hint="가격"
+                    android:lines="1"
                     android:maxLength="8"
                     android:singleLine="true"
-                    android:lines="1" />
+                    android:text="숫자만 입력해주" />
 
                 <TextView
                     android:id="@+id/lenPrice"
@@ -112,7 +115,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="VR 카메라" />
+                android:text="AR 카메라" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
