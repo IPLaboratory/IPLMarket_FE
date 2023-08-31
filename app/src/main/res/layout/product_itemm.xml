@@ -33,7 +33,7 @@
 
 
     <TextView
-        android:id="@+id/productName"
+        android:id="@+id/productTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -60,7 +60,7 @@
         android:textSize="14sp"
         app:layout_constraintStart_toEndOf="@+id/productimage1"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/productName"
+        app:layout_constraintTop_toBottomOf="@+id/productTitle"
         app:layout_constraintBottom_toBottomOf="@+id/productimage1" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
