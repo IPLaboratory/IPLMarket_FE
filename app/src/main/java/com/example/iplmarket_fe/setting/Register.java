@@ -56,10 +56,12 @@ public class Register extends AppCompatActivity {
         len_pw = findViewById(R.id.len_pw);
         len_nick = findViewById(R.id.len_nick);
 
+        // Retrofit 인스턴스 생성
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BuildConfig.serverIP)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+
 
         serviceApi = retrofit.create(ServiceApi.class);
 
@@ -200,19 +202,19 @@ public class Register extends AppCompatActivity {
             public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     RegisterResponse registerResponse = response.body();
-                        int responseCode = registerResponse.getCode(); // 응답 코드 가져오기
+                    int responseCode = registerResponse.getCode(); // 응답 코드 가져오기
 
-                        if (responseCode == 201) {
-                            // 회원가입 성공 처리
-                            Toast.makeText(Register.this, registerResponse.getMessage(), Toast.LENGTH_SHORT).show();
-                            finish();
-                        } else if (responseCode == 400) {
-                            // 회원가입 실패 처리
-                            Toast.makeText(Register.this, registerResponse.getMessage(), Toast.LENGTH_SHORT).show();
-                        } else if (responseCode == 500){
-                            // 오류 발생 처리
-                            Toast.makeText(Register.this, "알 수 없는 오류 발생", Toast.LENGTH_SHORT).show();
-                        }
+                    if (responseCode == 201) {
+                        // 회원가입 성공 처리
+                        Toast.makeText(Register.this, registerResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else if (responseCode == 400) {
+                        // 회원가입 실패 처리
+                        Toast.makeText(Register.this, registerResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                    } else if (responseCode == 500){
+                        // 오류 발생 처리
+                        Toast.makeText(Register.this, "알 수 없는 오류 발생", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
                     // 서버 오류 처리
                     Toast.makeText(Register.this, "서버 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
@@ -238,5 +240,5 @@ public class Register extends AppCompatActivity {
             progressBar.setVisibility(View.GONE);
         }
     }
-    }
+}
 

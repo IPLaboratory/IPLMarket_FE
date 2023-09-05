@@ -26,6 +26,9 @@
         tools:targetApi="32">
 
         <activity
+            android:name=".home.ModelingLoad"
+            android:exported="false"/>
+        <activity
             android:name=".home.PostAdapter"
             android:exported="false"/>
         <activity

@@ -55,6 +55,7 @@ public class HomeFrag extends Fragment {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
+
         serviceApi = retrofit.create(ServiceApi.class);
 
         fetchPosts();
@@ -93,7 +94,7 @@ public class HomeFrag extends Fragment {
 
                     // 각각의 게시물에 대해 썸네일 이미지를 디코딩하여 저장
                     for (PostResponse postResponse : postResponses) {
-                        Log.d("aaa", postResponse.getPostThumbnail());
+                        Log.d("디코딩", postResponse.getPostThumbnail());
                         // saveTestData(post.getPostThumbnail(), "thumbnail_" + post.getNum() + ".jpg");
                     }
                 } else {
