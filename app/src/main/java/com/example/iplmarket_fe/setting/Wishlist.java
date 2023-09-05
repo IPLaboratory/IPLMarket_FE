@@ -37,17 +37,6 @@ public class Wishlist extends AppCompatActivity {
         productAdapter = new ProductAdapter(productList);
         recyclerView.setAdapter(productAdapter);
 
-        // 예시 데이터 추가
-        productList.add(new Product(R.drawable.product1, "Product 1", "10,000₩", false));
-        productList.add(new Product(R.drawable.product2, "Product 2", "20,000₩", false));
-        productList.add(new Product(R.drawable.product3, "상품 3", "30,000₩", false));
-        productList.add(new Product(R.drawable.product4, "상품 4", "40,000₩", false));
-        productList.add(new Product(R.drawable.product5, "상품 5", "50,000₩", false));
-        productList.add(new Product(R.drawable.product6, "상품 6", "60,000₩", false));
-        productList.add(new Product(R.drawable.product7, "상품 7", "70,000₩", false));
-        productList.add(new Product(R.drawable.product8, "상품 8", "80,000₩", false));
-        productList.add(new Product(R.drawable.product9, "상품 9", "90,000₩", false));
-        productList.add(new Product(R.drawable.product10, "상품 10", "100,000₩", false));
 
         productAdapter.notifyDataSetChanged();
     }

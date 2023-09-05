@@ -113,7 +113,7 @@ public class Detail extends AppCompatActivity {
             }
         });
 
-        // VR Road 버튼 클릭 이벤트 처리
+        // AR Road 버튼 클릭 이벤트 처리
         detailBtnAr = findViewById(R.id.detail_btn_ar);
         detailBtnAr.setOnClickListener(view -> {
             Intent intent = new Intent(Detail.this, ModelingLoad.class);
