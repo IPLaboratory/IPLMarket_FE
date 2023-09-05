@@ -32,11 +32,11 @@ public class ModelingLoad extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // 게시글 번호를 가져오는 코드
-        int postNum = getIntent().getIntExtra("postNum", -1);
-        Log.d("ModelingLoad", "게시글 번호: " + postNum); // 게시글 번호 출력
+        int postNum = HomeFrag.getNum();
 
         // 실제로 존재하는 게시글 번호가 있을 경우(-1이 아닐 경우)
         if (postNum != -1) {
+
             // 서버로 게시글 번호와 함께 요청 보내기
             sendModelingLoadRequest(postNum);
 

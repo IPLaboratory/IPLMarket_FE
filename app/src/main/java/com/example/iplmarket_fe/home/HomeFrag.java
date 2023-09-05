@@ -16,10 +16,10 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.iplmarket_fe.BuildConfig;
+import com.example.iplmarket_fe.server.request.PostListRequest;
 import com.example.iplmarket_fe.server.response.PostResponse;
 import com.example.iplmarket_fe.R;
 import com.example.iplmarket_fe.server.ServiceApi;
-import com.example.iplmarket_fe.server.request.PostListRequest;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,6 +37,7 @@ public class HomeFrag extends Fragment {
 
     private PostAdapter adapter;
     private ServiceApi serviceApi;
+    private static int postNum;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -63,18 +64,20 @@ public class HomeFrag extends Fragment {
         // 아이템 클릭 리스너 설정
         adapter.setOnItemClickListener((View view, int position) -> {
             // 클릭한 아이템의 번호를 가져와서 서버로 전달하고 Detail 화면을 띄워줌
-            int postNum = adapter.getPostNumAt(position);
-            Log.d("product id", String.valueOf(postNum));
+            postNum = adapter.getPostNumAt(position);
             openDetailActivity(postNum);
         });
 
         return fragmentView;
     }
 
+    // 게시물 번호 리턴
+    public static int getNum() {
+        return postNum;
+    }
+
     private void fetchPosts() {
         // 사용자 정보 객체 생성
-//        PostListRequest postListRequest = new PostListRequest("aaa");
-//        Call<List<PostResponse>> call = serviceApi.getUserPosts(postListRequest);
         Call<List<PostResponse>> call = serviceApi.getAllPosts();
 
 
@@ -110,28 +113,6 @@ public class HomeFrag extends Fragment {
                 Log.d("error", t.getMessage());
             }
         });
-    }
-
-    // 수신한 obj 파일 디코딩 후 저장
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void saveTestData(String base64File, String fileName){
-        try {
-            byte[] fileData = Base64.getDecoder().decode(base64File);
-
-            // 저장 경로
-            String filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                    + File.separator + fileName;
-
-            // 저장
-            File file = new File(filePath);
-            FileOutputStream outputStream = new FileOutputStream(file);
-            outputStream.write(fileData);
-            outputStream.close();
-
-            Log.d("File", "Download Complete - Path: " + filePath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private void openDetailActivity(int postNum) {

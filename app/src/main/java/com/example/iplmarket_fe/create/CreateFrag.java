@@ -2,6 +2,8 @@ package com.example.iplmarket_fe.create;
 
 import static android.app.Activity.RESULT_OK;
 
+import static java.util.Base64.getEncoder;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +16,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -69,8 +73,8 @@ public class CreateFrag extends Fragment {
     private static final int REQUEST_CAMERA_PERMISSION = 100;
     private static final int REQUEST_VIDEO_CAPTURE = 200;
     private static final int BUFFER_SIZE = 65536 * 2;
-    private EditText createName, createPrice, createContent;
-    private TextView lenName, lenPrice, lenContent, createDate;
+    private EditText createName, createType, createPrice, createContent;
+    private TextView lenName, lenType, lenPrice, lenContent, createDate;
     private ImageView createImageView;
     private VideoView createVideoView;
     private Button createBtnGallery, createBtnCamera, createBtnUpload;
@@ -84,17 +88,39 @@ public class CreateFrag extends Fragment {
         View fragmentView = inflater.inflate(R.layout.createfrag, container, false);
 
         createName = fragmentView.findViewById(R.id.createName);
+        createType = fragmentView.findViewById(R.id.createType);
         createPrice = fragmentView.findViewById(R.id.createPrice);
         createContent = fragmentView.findViewById(R.id.createContent);
 
         lenName = fragmentView.findViewById(R.id.lenName);
+        lenType = fragmentView.findViewById(R.id.lenType);
         lenPrice = fragmentView.findViewById(R.id.lenPrice);
         lenContent = fragmentView.findViewById(R.id.lenContent);
 
         // EditText 글자 수 제한
         initializeEditTextWithLimit(fragmentView, R.id.createName, R.id.lenName, 30);
+        initializeEditTextWithLimit(fragmentView, R.id.createType, R.id.lenType, 30);
         initializeEditTextWithLimit(fragmentView, R.id.createPrice, R.id.lenPrice, 8);
         initializeEditTextWithLimit(fragmentView, R.id.createContent, R.id.lenContent, 300);
+
+        // 영문만 입력을 허용하는 InputFilter 설정
+        InputFilter inputFilter = new InputFilter() {
+            @Override
+            public CharSequence filter(CharSequence source, int start, int end,
+                                       Spanned dest, int dstart, int dend) {
+                StringBuilder builder = new StringBuilder();
+                for (int i = start; i < end; i++) {
+                    char currentChar = source.charAt(i);
+                    if (Character.isLetter(currentChar) && Character.isLowerCase(currentChar)) {
+                        builder.append(currentChar);
+                    }
+                }
+                // 영문 소문자만 포함된 문자열을 반환
+                return builder.toString();
+            }
+        };
+
+        createType.setFilters(new InputFilter[]{inputFilter});
 
         // 이미지 가져오기 버튼 클릭 이벤트 처리
         createImageView = fragmentView.findViewById(R.id.createImageView);
@@ -298,12 +324,10 @@ public class CreateFrag extends Fragment {
     // 동영상 파일을 서버에 전송
     private void sendVideo() {
         // 가져올 파일 경로
-        Log.d("savedVideoUri", savedVideoUri.getEncodedPath());
         String savedVideoPath = uriToFilePath(savedVideoUri);
-        Log.d("savedPath", savedVideoPath);
 
         File file = new File(savedVideoPath);
-        String prompt = "a drawers";
+        String prompt = String.valueOf(createType.getText());
         long fileLength = file.length();
 
         Thread thread = new Thread(() -> {
@@ -315,7 +339,7 @@ public class CreateFrag extends Fragment {
                 byte[] buffer = new byte[BUFFER_SIZE];
 
                 while (fis.read(buffer) >= 0) {
-                    String encodedPart = java.util.Base64.getEncoder().encodeToString(buffer);
+                    String encodedPart = getEncoder().encodeToString(buffer);
 
                     count += BUFFER_SIZE;
                     JSONObject data = new JSONObject();
