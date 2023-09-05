@@ -12,7 +12,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -34,8 +33,6 @@ import com.example.iplmarket_fe.server.PostData;
 import com.example.iplmarket_fe.server.ServiceApi;
 import com.example.iplmarket_fe.server.response.WriteContentResponse;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -99,7 +96,7 @@ public class CreateFrag extends Fragment {
         initializeEditTextWithLimit(fragmentView, R.id.createPrice, R.id.lenPrice, 8);
         initializeEditTextWithLimit(fragmentView, R.id.createContent, R.id.lenContent, 300);
 
-        // 이미지 가져오기
+        // 이미지 가져오기 버튼 클릭 이벤트 처리
         createImageView = fragmentView.findViewById(R.id.createImageView);
         createBtnGallery = fragmentView.findViewById(R.id.createBtnGallery);
         createBtnGallery.setOnClickListener(view -> {
@@ -216,7 +213,7 @@ public class CreateFrag extends Fragment {
         });
     }
 
-    /// 갤러리에서 이미지 가져오기 결과 처리
+    // 갤러리에서 이미지 가져오기 결과 처리
     ActivityResultLauncher<Intent> startActivityResult = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
