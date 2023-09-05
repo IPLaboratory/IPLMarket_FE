@@ -31,8 +31,9 @@ public class ModelingLoad extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 게시글 번호를 가져오는 코드 (http)
+        // 게시글 번호를 가져오는 코드
         int postNum = getIntent().getIntExtra("postNum", -1);
+        Log.d("ModelingLoad", "게시글 번호: " + postNum); // 게시글 번호 출력
 
         // 실제로 존재하는 게시글 번호가 있을 경우(-1이 아닐 경우)
         if (postNum != -1) {
@@ -68,69 +69,13 @@ public class ModelingLoad extends AppCompatActivity {
     }
 
 
-    // 서버로 VR LOAD 요청을 보내는 메서드
+    // 서버로 AR LOAD 요청을 보내는 메서드
     private void sendModelingLoadRequest(int postNum) {
         // JSON 데이터 생성
         JSONObject data = new JSONObject();
         try {
             data.put("postNum", postNum);
         } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // 소켓 통신으로 obj파일 수신
-    private Emitter.Listener LodeFile = new Emitter.Listener() {
-        @RequiresApi(api = Build.VERSION_CODES.O)
-        @Override
-        public void call(Object... args) {
-            // 전달 받은 원본 데이터
-            JSONObject data = (JSONObject) args[0];
-
-            try {
-                boolean success = data.getBoolean("success");
-
-                if (success) { // 성공적인 전달
-                    String base64File = data.getString("base64File");
-                    int fileIndex = data.getInt("fileIndex");
-
-                    saveModelingData(base64File, "modeling" + fileIndex + ".obj");
-                } else {
-                    Log.e("Modeling File Response", "Err : " + data.getString("message"));
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-    };
-
-    // 수신한 obj 파일 디코딩 후 저장
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void saveModelingData(String base64File, String fileName){
-        try {
-            byte[] fileData = Base64.getDecoder().decode(base64File);
-
-            // 폴더 경로
-            String folderPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                    + File.separator + "modeling_files";
-
-            // 폴더 생성
-            File folder = new File(folderPath);
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-
-            // 파일 경로
-            String filePath = folderPath + File.separator + fileName;
-
-            // 저장
-            File file = new File(filePath);
-            FileOutputStream outputStream = new FileOutputStream(file);
-            outputStream.write(fileData);
-            outputStream.close();
-
-            Log.d("Modeling File", "Download Complete - Path: " + filePath);
-        } catch (IOException e){
             e.printStackTrace();
         }
     }

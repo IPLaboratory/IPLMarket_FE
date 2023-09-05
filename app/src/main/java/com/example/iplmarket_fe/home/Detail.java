@@ -40,7 +40,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class Detail extends AppCompatActivity {
 
     private static Socket mSocket;
-    private Button detailBtnVr, detailBtnBuy;
+    private ImageView detailImageView;
+    private TextView detailEtName, detailEtPrice, detailEtContent, detailEtDate;
+    private Button detailBtnAr, detailBtnBuy;
     private ImageButton detailBtnImage;
     boolean i = true;
     private ServiceApi serviceApi;
@@ -112,8 +114,8 @@ public class Detail extends AppCompatActivity {
         });
 
         // VR Road 버튼 클릭 이벤트 처리
-        detailBtnVr = findViewById(R.id.detail_btn_vr);
-        detailBtnVr.setOnClickListener(view -> {
+        detailBtnAr = findViewById(R.id.detail_btn_ar);
+        detailBtnAr.setOnClickListener(view -> {
             Intent intent = new Intent(Detail.this, ModelingLoad.class);
             startActivity(intent);
         });

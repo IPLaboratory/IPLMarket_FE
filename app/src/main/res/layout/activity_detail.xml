@@ -142,10 +142,10 @@
             </LinearLayout>
 
             <Button
-                android:id="@+id/detail_btn_vr"
+                android:id="@+id/detail_btn_ar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="VR Load"
+                android:text="AR Load"
                 android:layout_gravity="center"
                 android:layout_margin="10dp"/>
 

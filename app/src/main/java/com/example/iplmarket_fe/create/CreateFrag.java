@@ -3,14 +3,12 @@ package com.example.iplmarket_fe.create;
 import static android.app.Activity.RESULT_OK;
 import static android.util.Base64.encodeToString;
 
-import android.Manifest;
-import android.content.Context;
+import android.Manifest;ㅠ
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -46,6 +44,7 @@ import androidx.fragment.app.Fragment;
 
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -77,8 +76,9 @@ public class CreateFrag extends Fragment {
     private VideoView createVideoView;
     private Button createBtnGallery, createBtnCamera, createBtnUpload;
     Uri imageUri, savedVrPath;
-    private String userId; // 사용자 아이디 변수
     private String savedImagePath;
+    private String userId; // 사용자 아이디 변수
+    private int num = 0; // 게시물 번호
 
     @Nullable
     @Override
@@ -171,20 +171,23 @@ public class CreateFrag extends Fragment {
                     Log.e("ERROR", t.getMessage());
                 }
             });
+          
+            // 소켓 연결
+            try {
+                mSocket = SocketManager.getSocket();
+                mSocket.connect();
+                sendVideo();
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            Toast.makeText(getActivity(),"등록되었습니다.", Toast.LENGTH_SHORT).show();
         });
-
-        // 소켓 연결
-        try {
-            mSocket = SocketManager.getSocket();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-        mSocket.on("product vr", sendVrModel);
-        mSocket.connect();
 
         return fragmentView;
     }
-
+  
     // 비트맵 이미지를 Base64로 변환하는 메서드
     public static String bitmapToBase64(Bitmap bitmap) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -193,7 +196,6 @@ public class CreateFrag extends Fragment {
         String encodedImage = Base64.encodeToString(imageBytes, Base64.DEFAULT);
         return encodedImage;
     }
-
 
     // EditText 초기화 및 글자 수 제한 설정을 위한 메서드
     private void initializeEditTextWithLimit(View rootView, int editTextId, int counterTextViewId, int maxLength) {
@@ -215,7 +217,7 @@ public class CreateFrag extends Fragment {
             }
         });
     }
-
+  
     // 갤러리에서 이미지 가져오기 결과 처리
     ActivityResultLauncher<Intent> startActivityResult = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -265,8 +267,8 @@ public class CreateFrag extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK) {
-            Uri savedVrPath = data.getData();
-            createVideoView.setVideoURI(savedVrPath);
+            savedVideoUri = data.getData();
+            createVideoView.setVideoURI(savedVideoUri);
             createVideoView.start();
         }
     }
@@ -284,63 +286,79 @@ public class CreateFrag extends Fragment {
         }
     }
 
-    // 현재 날짜를 설정하는 도우미 메서드
-    private void setCurrentDate() {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy.MM.dd", Locale.getDefault());
-        String currentDate = simpleDateFormat.format(new Date());
-        createDate.setText(currentDate);
+    // uri를 file path로 변환
+    public String getPathFromUri(Uri uri) throws IOException {
+        Cursor cursor = getActivity().getContentResolver().query(uri, null, null, null, null );
+        cursor.moveToNext();
+        @SuppressLint("Range") String path = cursor.getString( cursor.getColumnIndex( "_data" ) );
+        cursor.close();
+        return path;
     }
 
-    // VR 파일을 서버에 전송
-    private Emitter.Listener sendVrModel = new Emitter.Listener() {
-        @RequiresApi(api = Build.VERSION_CODES.O)
-        @Override
-        public void call(Object... args) {
-            File file = new File(savedVrPath + File.separator + "productVr.obj");
+    // 동영상 파일을 서버에 전송 (소켓)
+    private void sendVideo() throws IOException {
+        // 가져올 파일 경로
+        Log.d("savedVideoUri", savedVideoUri.getEncodedPath());
+        savedVideoPath = Uri.parse(getPathFromUri(savedVideoUri));
+        File file = new File(savedVideoPath.getEncodedPath());
 
-            try {
-                FileInputStream fis = new FileInputStream(file);
-                ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = fis.read(buffer)) != -1) {
-                    bos.write(buffer, 0, bytesRead);
-                }
-
-                fis.close();
-                bos.close();
-
-                byte[] fileBytes = bos.toByteArray();
-                String encodedFile = Base64.encodeToString(fileBytes, Base64.DEFAULT); // 수정된 부분
-
-                int chunk = 800000;
-                int numOfChunks = (int) Math.ceil((double) encodedFile.length() / chunk);
-                int startIdx = 0, endIdx;
-
-                for (int i = 0; i < numOfChunks; i++) {
-                    endIdx = Math.min(startIdx + chunk, encodedFile.length());
-                    JSONObject data = new JSONObject();
-
-                    try {
-                        data.put("total", encodedFile.length());
-                        data.put("count", endIdx);
-                        data.put("data", encodedFile.substring(startIdx, endIdx));
-
-                        mSocket.emit("sendFile", data);
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-                    Log.d("Send Data ... ", "" + Math.round(((double) endIdx / encodedFile.length() * 100.0) * 100) / 100.0 + "%");
-                    startIdx += chunk;
-                }
-                Log.d("VrUpload", "VR File sent successfully");
-
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+        try {
+            // 파일 데이터 읽기
+            FileInputStream fis;
+            fis = new FileInputStream(file);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = fis.read(buffer)) != -1){
+                bos.write(buffer, 0, bytesRead);
             }
+
+            fis.close();
+            bos.close();
+
+            // 파일 Base64 인코딩
+            byte[] fileBytes = bos.toByteArray();
+            String encodedFile = Base64.getEncoder().encodeToString(fileBytes);
+
+            // 청크 설정 (한 번씩 보낼 데이터 크기) -> 실제 연결시 500000번으로 줄일것
+            int chunk = 800000;
+            int numOfChunks = (int)Math.ceil((double)encodedFile.length() / chunk);
+            int startIdx = 0, endIdx;
+
+            // 청크 개수 만큼 반복
+            for(int i=0; i<numOfChunks; i++){
+                endIdx = Math.min(startIdx + chunk, encodedFile.length());
+                JSONObject data = new JSONObject();
+
+                // json 파일에 데이터 전체 크기, 현재 보낸 데이터 크기, 데이터 전송
+                try{
+                    data.put("total", encodedFile.length());
+                    data.put("count", endIdx);
+                    data.put("data", encodedFile.substring(startIdx, endIdx));
+
+                    Log.d("sendVideo", data.get("data").toString());
+                    mSocket.emit("sendVideo", data);
+
+                    // Thread.sleep(100); // 소켓 이중 연결됨
+                } catch (Exception e){
+                    e.printStackTrace();
+                }
+
+                Log.d("Send Video ... ", ""+ Math.round(((double)endIdx / encodedFile.length() * 100.0) * 100) / 100.0 + "%");
+                startIdx += chunk; // 다음 보낼 데이터 이어서 전송
+            }
+            Log.d("VideoUpload", "Video File sent successfully");
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
+    }
+          
+    // 현재 날짜를 설정하는 도우미 메서드
+    private void setCurrentDate() {
+        SimpleDateFormat simpleDataFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String currentDate = simpleDataFormat.format(new Date());
+        createDate.setText(currentDate);
     };
 
     // 사용자 아이디 가져오기

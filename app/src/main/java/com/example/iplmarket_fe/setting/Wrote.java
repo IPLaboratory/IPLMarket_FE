@@ -171,7 +171,7 @@ public class Wrote extends AppCompatActivity {
                     // 해당 상품의 게시글 번호를 가져와서 상세 페이지로 전환
                     int clickedPostNum = product.getPostNum();
                     openDetailPage(clickedPostNum);
-
+                  
                     // 게시글 번호를 서버로 전송
                     sendClickedPostNum(clickedPostNum);
                 }
