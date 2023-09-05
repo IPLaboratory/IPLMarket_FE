@@ -42,8 +42,7 @@
                     android:hint="상품명"
                     android:lines="1"
                     android:maxLength="30"
-                    android:singleLine="true"
-                    android:text="상품의 이름을 입력해주세요" />
+                    android:singleLine="true" />
 
                 <TextView
                     android:id="@+id/lenName"
@@ -68,8 +67,7 @@
                     android:hint="가격"
                     android:lines="1"
                     android:maxLength="8"
-                    android:singleLine="true"
-                    android:text="숫자만 입력해주" />
+                    android:singleLine="true" />
 
                 <TextView
                     android:id="@+id/lenPrice"
