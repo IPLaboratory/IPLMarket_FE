@@ -11,7 +11,7 @@ public class SocketManager {
     public static Socket getSocket() throws URISyntaxException {
         if (mSocket == null) {
             try {
-                mSocket = IO.socket("Server IP:Port");
+                mSocket = IO.socket(BuildConfig.serverIP);
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
