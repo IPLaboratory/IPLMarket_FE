@@ -19,7 +19,6 @@ import com.example.iplmarket_fe.BuildConfig;
 import com.example.iplmarket_fe.server.response.PostResponse;
 import com.example.iplmarket_fe.R;
 import com.example.iplmarket_fe.server.ServiceApi;
-import com.example.iplmarket_fe.server.request.PostListRequest;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,6 +36,7 @@ public class HomeFrag extends Fragment {
 
     private PostAdapter adapter;
     private ServiceApi serviceApi;
+    private static int postNum;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -63,12 +63,17 @@ public class HomeFrag extends Fragment {
         // 아이템 클릭 리스너 설정
         adapter.setOnItemClickListener((View view, int position) -> {
             // 클릭한 아이템의 번호를 가져와서 서버로 전달하고 Detail 화면을 띄워줌
-            int postNum = adapter.getPostNumAt(position);
+            postNum = adapter.getPostNumAt(position);
             Log.d("product id", String.valueOf(postNum));
             openDetailActivity(postNum);
         });
 
         return fragmentView;
+    }
+
+    // 게시물 번호 리턴
+    public static int getNum() {
+        return postNum;
     }
 
     private void fetchPosts() {

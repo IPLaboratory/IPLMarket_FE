@@ -9,129 +9,135 @@ import android.widget.Toast;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.iplmarket_fe.SocketManager;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.example.iplmarket_fe.BuildConfig;
+import com.example.iplmarket_fe.server.ServiceApi;
+import com.example.iplmarket_fe.server.request.ArLoadRequest;
+import com.example.iplmarket_fe.server.response.ArLoadResponse;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import io.socket.client.Socket;
-import io.socket.emitter.Emitter;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ModelingLoad extends AppCompatActivity {
-    private static Socket mSocket;
+
+    ServiceApi serviceApi;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Retrofit 인스턴스 생성
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BuildConfig.serverIP)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        serviceApi = retrofit.create(ServiceApi.class);
+
         // 게시글 번호를 가져오는 코드
-        int postNum = getIntent().getIntExtra("postNum", -1);
+        int postNum = HomeFrag.getNum();
         Log.d("ModelingLoad", "게시글 번호: " + postNum); // 게시글 번호 출력
 
         // 실제로 존재하는 게시글 번호가 있을 경우(-1이 아닐 경우)
         if (postNum != -1) {
             // 서버로 게시글 번호와 함께 요청 보내기
             sendModelingLoadRequest(postNum);
-
-            // 소켓 연결
-            try {
-                mSocket = SocketManager.getSocket();
-                mSocket.on("Modeling File Rode", LodeFile);
-                mSocket.connect();
-                Log.d("ModelingLoad", "Socket 연결 성공");
-            } catch (URISyntaxException e) {
-                Log.e("ModelingLoad", "Socket 연결 실패");
-                throw new RuntimeException(e);
-            }
-
-            // 6개의 파일 요청
-            for (int i = 1; i <= 6; i++) {
-                JSONObject requestObject = new JSONObject();
-                try {
-                    requestObject.put("fileIndex", i);
-                    mSocket.emit("Request Modeling File", requestObject);
-                    Log.d("ModelingLoad", "모델링 파일 요청 - Index: " + i);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
         } else {
             Log.e("ModelingLoad", "게시글 번호가 올바르지 않습니다.");
         }
         Toast.makeText(getApplicationContext(), "잠시만 기다려주세요...", Toast.LENGTH_LONG).show();
     }
 
-
     // 서버로 AR LOAD 요청을 보내는 메서드
     private void sendModelingLoadRequest(int postNum) {
         // JSON 데이터 생성
-        JSONObject data = new JSONObject();
-        try {
-            data.put("postNum", postNum);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        ArLoadRequest arLoadRequest = new ArLoadRequest(postNum);
+
+        serviceApi.getArLoad(arLoadRequest).enqueue(new Callback<ArLoadResponse>() {
+            @Override
+            public void onResponse(Call<ArLoadResponse> call, Response<ArLoadResponse> response) {
+                if (response.isSuccessful()) {
+                    ArLoadResponse arLoadResponse = response.body();
+                    if (arLoadResponse != null) {
+                        // 서버 응답을 처리하는 함수 호출
+                        handleModelingLoadResponse(arLoadResponse);
+                    } else {
+                        Log.e("ModelingLoad", "응답 데이터가 비어 있습니다.");
+                    }
+                } else {
+                    Log.e("ModelingLoad", "서버 응답에 실패했습니다. 응답 코드: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArLoadResponse> call, Throwable t) {
+                Log.e("ModelingLoad", "서버 요청에 실패했습니다.", t);
+            }
+        });
+    }
+
+    // 서버 응답 처리 및 파일 저장
+    private void handleModelingLoadResponse(ArLoadResponse response) {
+        boolean success = response.isSuccess();
+        if (success) {
+            String directory = response.getDirectory();
+            createDirectoryIfNotExists(directory);
+
+            String folderPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
+
+            // 각 파일을 base64로 디코딩하여 저장
+            saveFileFromBase64(folderPath, "mesh.mtl", response.getMtl());
+            saveFileFromBase64(folderPath, "mesh.obj", response.getObj());
+            saveFileFromBase64(folderPath, "probe.hdr", response.getHdr());
+            saveFileFromBase64(folderPath, "texture_kd.png", response.getKdPng());
+            saveFileFromBase64(folderPath, "texture_ks.png", response.getKsPng());
+            saveFileFromBase64(folderPath, "texture_n.png", response.getnPng());
+
+            // TODO: Start Unity Activity
+        } else {
+            String errorMessage = response.getError();
+            if ("Not Exist Directory".equals(errorMessage)) {
+                Log.d("NotModeling", "아직 모델링이 완료되지 않았습니다.");
+            } else {
+                Log.d("Error", "에러 발생: " + errorMessage);
+            }
         }
     }
 
-    // 소켓 통신으로 obj파일 수신
-    private Emitter.Listener LodeFile = new Emitter.Listener() {
-        @RequiresApi(api = Build.VERSION_CODES.O)
-        @Override
-        public void call(Object... args) {
-            // 전달 받은 원본 데이터
-            JSONObject data = (JSONObject) args[0];
+    // 디렉토리 생성
+    private void createDirectoryIfNotExists(String directory) {
+        String folderPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+                + File.separator + directory;
 
-            try {
-                boolean success = data.getBoolean("success");
-
-                if (success) { // 성공적인 전달
-                    String base64File = data.getString("base64File");
-                    int fileIndex = data.getInt("fileIndex");
-
-                    saveModelingData(base64File, "modeling" + fileIndex + ".obj");
-                } else {
-                    Log.e("Modeling File Response", "Err : " + data.getString("message"));
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+        File folder = new File(folderPath);
+        if (!folder.exists()) {
+            folder.mkdirs();
         }
-    };
+    }
 
-    // 수신한 obj 파일 디코딩 후 저장
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void saveModelingData(String base64File, String fileName){
+    // base64로 디코딩하여 파일 저장
+    private void saveFileFromBase64(String directory, String fileName, String base64File) {
         try {
-            byte[] fileData = Base64.getDecoder().decode(base64File);
+            byte[] fileData = Base64.getDecoder().decode(base64File.getBytes(StandardCharsets.UTF_8));
 
-            // 폴더 경로
-            String folderPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
-                    + File.separator + "modeling_files";
+            String filePath = directory + File.separator + fileName;
 
-            // 폴더 생성
-            File folder = new File(folderPath);
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-
-            // 파일 경로
-            String filePath = folderPath + File.separator + fileName;
-
-            // 저장
             File file = new File(filePath);
             FileOutputStream outputStream = new FileOutputStream(file);
             outputStream.write(fileData);
             outputStream.close();
 
             Log.d("Modeling File", "Download Complete - Path: " + filePath);
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
