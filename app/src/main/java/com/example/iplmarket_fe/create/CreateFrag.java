@@ -12,7 +12,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -34,8 +33,6 @@ import com.example.iplmarket_fe.server.PostData;
 import com.example.iplmarket_fe.server.ServiceApi;
 import com.example.iplmarket_fe.server.response.WriteContentResponse;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -45,6 +42,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -58,6 +56,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import io.socket.client.Socket;
+import io.socket.emitter.Emitter;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -77,14 +76,21 @@ public class CreateFrag extends Fragment {
     private ImageView createImageView;
     private VideoView createVideoView;
     private Button createBtnGallery, createBtnCamera, createBtnUpload;
-    Uri imageUri, savedVideoUri;
+    private Uri imageUri, savedVideoUri;
+    private String videoFilename;
     private String userId; // 사용자 아이디 변수
-    private int num = 0; // 게시물 번호
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View fragmentView = inflater.inflate(R.layout.createfrag, container, false);
+
+        try {
+            mSocket = SocketManager.getSocket();
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+        mSocket.on("video save complete", videoComplete);
 
         createName = fragmentView.findViewById(R.id.createName);
         createPrice = fragmentView.findViewById(R.id.createPrice);
@@ -99,7 +105,7 @@ public class CreateFrag extends Fragment {
         initializeEditTextWithLimit(fragmentView, R.id.createPrice, R.id.lenPrice, 8);
         initializeEditTextWithLimit(fragmentView, R.id.createContent, R.id.lenContent, 300);
 
-        // 이미지 가져오기
+        // 이미지 가져오기 버튼 클릭 이벤트 처리
         createImageView = fragmentView.findViewById(R.id.createImageView);
         createBtnGallery = fragmentView.findViewById(R.id.createBtnGallery);
         createBtnGallery.setOnClickListener(view -> {
@@ -130,64 +136,14 @@ public class CreateFrag extends Fragment {
             String title = createName.getText().toString();
             String content = createContent.getText().toString();
             String price = createPrice.getText().toString();
-            String imageData = "";
-            String imageName = "";
-            String videoName = "";
-
-            // 이미지가 선택되었을 때만 이미지 데이터를 생성
-            if (imageUri != null) {
-                String imagePath = getImagePathFromUri(imageUri);
-                if (imagePath != null) {
-                    imageName = UUID.randomUUID().toString() + ".jpg";
-                    videoName = UUID.randomUUID().toString() + ".mp4";
-                    Bitmap imageBitmap = BitmapFactory.decodeFile(imagePath);
-                    imageData = bitmapToBase64(imageBitmap); // 이미지를 Base64로 변환하여 imageData에 저장
-                }
-            }
 
             // 사용자가 입력한 데이터가 하나라도 비어있다면 서버로의 전송을 막음
             if (title.isEmpty() || content.isEmpty() || price.isEmpty() || imageUri == null || savedVideoUri == null) {
                 Toast.makeText(getActivity(), "모든 필드를 입력하고 이미지, 비디오를 선택해주세요.", Toast.LENGTH_SHORT).show();
             } else {
-                // 사용자 아이디 가져오기
-                userId = getUserID();
-
-                Retrofit retrofit = new Retrofit.Builder()
-                        .baseUrl(BuildConfig.serverIP)
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build();
-
-                ServiceApi serviceApi = retrofit.create(ServiceApi.class);
-
-                PostData sendData = new PostData(title, content, price, imageName, videoName, imageData, userId);
-                Call<WriteContentResponse> response = serviceApi.WroteResponse(sendData);
-
-                response.enqueue(new Callback<WriteContentResponse>() {
-                    @Override
-                    public void onResponse(Call<WriteContentResponse> call, Response<WriteContentResponse> response) {
-                        if (response != null) {
-                            WriteContentResponse mResult = response.body();
-                            if (mResult != null && mResult.isSuccess()) {
-                                Log.d("게시물 등록", "게시물 등록 성공");
-                            } else {
-                                Log.e("게시물 등록", "실패");
-                            }
-                        }
-                    }
-                    @Override
-                    public void onFailure(Call<WriteContentResponse> call, Throwable t) {
-                        Log.e("ERROR", t.getMessage());
-                    }
-                });
-
                 // 소켓 연결
-                try {
-                    mSocket = SocketManager.getSocket();
-                    mSocket.connect();
-                    sendVideo();
-                } catch (URISyntaxException e) {
-                    throw new RuntimeException(e);
-                }
+                mSocket.connect();
+                sendVideo();
                 Toast.makeText(getActivity(), "등록되었습니다.", Toast.LENGTH_SHORT).show();
             }
         });
@@ -216,7 +172,7 @@ public class CreateFrag extends Fragment {
         });
     }
 
-    /// 갤러리에서 이미지 가져오기 결과 처리
+    // 갤러리에서 이미지 가져오기 결과 처리
     ActivityResultLauncher<Intent> startActivityResult = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -353,6 +309,70 @@ public class CreateFrag extends Fragment {
 
         Log.d("FileSend", "success!!!!!");
     }
+
+    Emitter.Listener videoComplete = args -> {
+        JSONObject data = (JSONObject) args[0];
+        try {
+            Boolean success = data.getBoolean("success");
+            String filename = data.getString("fileName");
+            if (success) {
+                videoFilename = filename;
+
+                String title = createName.getText().toString();
+                String content = createContent.getText().toString();
+                String price = createPrice.getText().toString();
+                String imageData = "";
+                String imageName = "";
+                String videoName = "";
+
+                // 이미지가 선택되었을 때만 이미지 데이터를 생성
+                if (imageUri != null) {
+                    String imagePath = getImagePathFromUri(imageUri);
+                    if (imagePath != null) {
+                        imageName = UUID.randomUUID().toString() + ".jpg";
+                        videoName = videoFilename + ".mp4";
+                        Bitmap imageBitmap = BitmapFactory.decodeFile(imagePath);
+                        imageData = bitmapToBase64(imageBitmap); // 이미지를 Base64로 변환하여 imageData에 저장
+                    }
+                }
+
+                // 사용자 아이디 가져오기
+                userId = getUserID();
+
+                Retrofit retrofit = new Retrofit.Builder()
+                        .baseUrl(BuildConfig.serverIP)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+
+                ServiceApi serviceApi = retrofit.create(ServiceApi.class);
+
+                PostData sendData = new PostData(title, content, price, imageName, videoName, imageData, userId);
+                Call<WriteContentResponse> response = serviceApi.WroteResponse(sendData);
+
+                response.enqueue(new Callback<WriteContentResponse>() {
+                    @Override
+                    public void onResponse(Call<WriteContentResponse> call, Response<WriteContentResponse> response) {
+                        if (response != null) {
+                            WriteContentResponse mResult = response.body();
+                            if (mResult != null && mResult.isSuccess()) {
+                                Log.d("게시물 등록", "게시물 등록 성공");
+                            } else {
+                                Log.e("게시물 등록", "실패");
+                            }
+                        }
+                    }
+                    @Override
+                    public void onFailure(Call<WriteContentResponse> call, Throwable t) {
+                        Log.e("ERROR", t.getMessage());
+                    }
+                });
+
+                mSocket.disconnect();
+            }
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    };
 
     // 현재 날짜를 설정하는 도우미 메서드
     private void setCurrentDate() {

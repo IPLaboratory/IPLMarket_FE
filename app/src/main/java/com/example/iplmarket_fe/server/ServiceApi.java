@@ -1,10 +1,12 @@
 package com.example.iplmarket_fe.server;
 
+import com.example.iplmarket_fe.server.request.ArLoadRequest;
 import com.example.iplmarket_fe.server.request.IdValidationRequest;
 import com.example.iplmarket_fe.server.request.LoginRequest;
 import com.example.iplmarket_fe.server.request.PostDetailRequest;
 import com.example.iplmarket_fe.server.request.PostListRequest;
 import com.example.iplmarket_fe.server.request.RegistRequest;
+import com.example.iplmarket_fe.server.response.ArLoadResponse;
 import com.example.iplmarket_fe.server.response.IdValidationResponse;
 import com.example.iplmarket_fe.server.response.LoginResponse;
 import com.example.iplmarket_fe.server.response.PostDetailResponse;
@@ -38,4 +40,7 @@ public interface ServiceApi {
 
  @POST("posts/detail")
  Call<PostDetailResponse> getPostDetail(@Body PostDetailRequest postDetailRequest);
+
+ @POST("model/vrload")
+ Call<ArLoadResponse> getArLoad(@Body ArLoadRequest arLoadRequest);
 }
