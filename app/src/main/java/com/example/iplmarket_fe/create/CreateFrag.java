@@ -71,7 +71,7 @@ public class CreateFrag extends Fragment {
     private static final int REQUEST_CAMERA_PERMISSION = 100;
     private static final int REQUEST_VIDEO_CAPTURE = 200;
     private static final int BUFFER_SIZE = 65536 * 2;
-    private EditText createName, createPrice, createContent;
+    private EditText createName, createPrice, createContent, createPrompt;
     private TextView lenName, lenPrice, lenContent, createDate;
     private ImageView createImageView;
     private VideoView createVideoView;
@@ -95,6 +95,7 @@ public class CreateFrag extends Fragment {
         createName = fragmentView.findViewById(R.id.createName);
         createPrice = fragmentView.findViewById(R.id.createPrice);
         createContent = fragmentView.findViewById(R.id.createContent);
+        createPrompt = fragmentView.findViewById(R.id.createPrompt);
 
         lenName = fragmentView.findViewById(R.id.lenName);
         lenPrice = fragmentView.findViewById(R.id.lenPrice);
@@ -262,7 +263,7 @@ public class CreateFrag extends Fragment {
         Log.d("savedPath", savedVideoPath);
 
         File file = new File(savedVideoPath);
-        String prompt = "a drawers";
+        String prompt = createPrompt.getText().toString();
         long fileLength = file.length();
 
         Thread thread = new Thread(() -> {

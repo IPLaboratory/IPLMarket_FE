@@ -65,8 +65,6 @@ public class Register extends AppCompatActivity {
 
         serviceApi = retrofit.create(ServiceApi.class);
 
-        progressBar = findViewById(R.id.progressBar);
-
         //EditText 글자 수 제한
         reg_id.addTextChangedListener(new TextWatcher() {
             @Override
@@ -130,11 +128,11 @@ public class Register extends AppCompatActivity {
                             if (idValidationResponse.isSuccess()) {
                                 // 해당 아이디 사용 가능
                                 isIdAvailable = true;
-                                Toast.makeText(Register.this, idValidationResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(Register.this, "사용 가능한 아이디 입니다", Toast.LENGTH_SHORT).show();
                             } else {
                                 // 해당 아이디 이미 존재
                                 isIdAvailable = false;
-                                Toast.makeText(Register.this, idValidationResponse.getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(Register.this, "이미 존재하는 아이디 입니다", Toast.LENGTH_SHORT).show();
                             }
                         } else if (response.code() == 500) {
                             // 내부 서버 오류

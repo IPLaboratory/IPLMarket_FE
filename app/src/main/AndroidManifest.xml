@@ -41,6 +41,9 @@
             android:name=".setting.Wishlist"
             android:exported="false"/>
         <activity
+            android:name="com.unity3d.player.UnityPlayerActivity"
+            android:exported="true"/>
+        <activity
             android:name=".setting.Question"
             android:exported="false"/>
         <activity
@@ -75,4 +78,10 @@
             </intent-filter>
         </activity>
     </application>
+
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+
 </manifest>

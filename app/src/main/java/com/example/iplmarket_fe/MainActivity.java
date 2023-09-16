@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
         // 하단 네비게이션 뷰 설정
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavi);
+        bottomNavigationView.setSelectedItemId(R.id.action_home);
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.action_create) {
@@ -42,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         createfrag = new CreateFrag();
         homefrag = new HomeFrag();
         settingfrag = new SettingFrag();
-        switchToFragment(0); // 첫 프래그먼트 화면 지정
+        switchToFragment(1); // 첫 프래그먼트 화면 지정
     }
 
     // 프래그먼트 전환 메소드
